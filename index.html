@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
+    />
+    <title>Geheimnis</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <div>
+      <input type="file" id="file" />
+    </div>
+    <div>
+      <input
+        type="checkbox"
+        id="decrypt"
+        onchange="__x__.decrypt = this.checked; document.querySelector('#encrypt_only').style.display = this.checked ? 'none' : 'inline'; document.querySelector('#sign').disabled = !this.checked"
+      />
+      <label for="decrypt">Decrypt</label>
+      <span id="encrypt_only">
+        <select id="cipher" onchange="__x__.cipher = +this.value"></select>
+        <select id="mode" onchange="__x__.mode = +this.value"></select>
+        <select id="kdf" onchange="__x__.kdf = +this.value"></select>
+        <select id="mac" onchange="__x__.mac = +this.value"></select>
+        <select id="md" onchange="__x__.md = +this.value"></select>
+        <input type="number" id="sec" onchange="__x__.sec = +this.value" />
+      </span>
+    </div>
+    <div>
+      <input
+        type="password"
+        id="pass"
+        onchange="__x__.pass = this.value"
+        placeholder="passcode"
+        onfocus="this.type = 'text'"
+        onblur="this.type = 'password'"
+      />
+    </div>
+    <div>
+      <input
+        id="sign"
+        onchange="__x__.sign = this.value"
+        placeholder="signature hex"
+        disabled
+      />
+    </div>
+    <div>
+      <button onclick="run()" id="run" disabled>Run</button>
+      <button onclick="download()" id="download" disabled>Download</button>
+    </div>
+    <script src="wasm_exec.js"></script>
+    <script>
+      window.__x__ = {};
+    </script>
+    <script>
+      const go = new Go();
+      let mod, inst;
+      const $run = document.querySelector('#run');
+      function setReady(x) {
+        $run.disabled = !x;
+      }
+      const $download = document.querySelector('#download');
+      function setDownloadable(x) {
+        $download.disabled = !x;
+      }
+      const $file = document.querySelector('#file');
+      $file.addEventListener('change', function () {
+        if (this.files.length) {
+          this.files
+            .item(0)
+            .arrayBuffer()
+            .then((b) => {
+              __x__.input = new Uint8Array(b);
+            });
+        }
+      });
+      async function run() {
+        if ($run.disabled) return;
+        setReady(false);
+        setDownloadable(false);
+        console.warn('running');
+        await go.run(inst);
+        console.warn('done');
+        inst = await WebAssembly.instantiate(mod, go.importObject);
+        setReady(true);
+        if (__x__.__out__) {
+          setDownloadable(true);
+          $sign.value = __x__.sign;
+        }
+      }
+      function download() {
+        if ($download.disabled) return;
+        if (!__x__.output) return;
+        const blob = new Blob([__x__.output], {
+          type: 'application/octet-stream',
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'output';
+        a.click();
+        URL.revokeObjectURL(blob);
+      }
+      function setOptions(str, def, $el, name) {
+        str
+          .split(', ')
+          .map((d) => {
+            const [value, text] = d.split(':');
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            return option;
+          })
+          .forEach((v) => {
+            $el.appendChild(v);
+          });
+        $el.value = `${def}`;
+        __x__[name] = def;
+      }
+      const $decrypt = document.querySelector('#decrypt');
+      const $cipher = document.querySelector('#cipher');
+      const $mode = document.querySelector('#mode');
+      const $kdf = document.querySelector('#kdf');
+      const $mac = document.querySelector('#mac');
+      const $md = document.querySelector('#md');
+      const $sec = document.querySelector('#sec');
+      const $sign = document.querySelector('#sign');
+      WebAssembly.instantiateStreaming(fetch('ghs.wasm'), go.importObject)
+        .then((result) => {
+          mod = result.module;
+          inst = result.instance;
+          setReady(true);
+          return run();
+        })
+        .then(() => {
+          setOptions(
+            __x__.CipherString,
+            __x__.DefaultCipher,
+            $cipher,
+            'cipher'
+          );
+          setOptions(__x__.ModeString, __x__.DefaultMode, $mode, 'mode');
+          setOptions(__x__.KDFString, __x__.DefaultKDF, $kdf, 'kdf');
+          setOptions(__x__.MACString, __x__.DefaultMAC, $mac, 'mac');
+          setOptions(__x__.MDString, __x__.DefaultMD, $md, 'md');
+          $sec.min = `${__x__.MinSec}`;
+          $sec.max = `${__x__.MaxSec}`;
+          $sec.value = `${__x__.DefaultSec}`;
+          __x__.sec = __x__.DefaultSec;
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    </script>
+  </body>
+</html>
