@@ -20,10 +20,10 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; document.querySelector('#encrypt_only').style.display = this.checked ? 'none' : 'inline'; $sign.disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; document.querySelector('#options').style.display = this.checked ? 'none' : 'inline'; $sign.disabled = !this.checked"
       />
       <label for="decrypt">Decrypt</label>
-      <span id="encrypt_only">
+      <span id="options">
         <select id="cipher" onchange="__x__.cipher = +this.value"></select>
         <select id="mode" onchange="__x__.mode = +this.value"></select>
         <select id="kdf" onchange="__x__.kdf = +this.value"></select>
@@ -71,11 +71,10 @@
       const _warn = console.warn;
       console.log = (...args) => {
         _log(...args);
-        $console.value += `${args.join(' ')}\n`;
-      };
-      console.warn = (...args) => {
-        _warn(...args);
-        $console.value += `${args.join(' ')}\n`;
+        const argstr = args.join(' ');
+        $console.value += `${argstr}\n`;
+        if (['panic:', 'error:'].some((v) => argstr.includes(v)))
+          alert(args.join(' '));
       };
       console.log('geheim', 'v1.6.9');
       const go = new Go();
@@ -124,7 +123,7 @@
         a.click();
         URL.revokeObjectURL(blob);
       }
-      function setOptions(str, def, $el, name) {
+      function setOptions(str, df, $el, name) {
         str
           .split(', ')
           .map((d) => {
@@ -137,8 +136,8 @@
           .forEach((v) => {
             $el.appendChild(v);
           });
-        $el.value = `${def}`;
-        __x__[name] = def;
+        $el.value = `${df}`;
+        __x__[name] = df;
       }
       const $decrypt = document.querySelector('#decrypt');
       const $cipher = document.querySelector('#cipher');
@@ -153,8 +152,8 @@
           mod = result.module;
           inst = result.instance;
           setReady(true);
-          return run();
         })
+        .then(run)
         .then(() => {
           setOptions(
             __x__.CipherString,
@@ -172,7 +171,7 @@
           __x__.sec = __x__.DefaultSec;
         })
         .catch((err) => {
-          alert(err);
+          console.log('error:', err);
         });
     </script>
   </body>
