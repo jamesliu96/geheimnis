@@ -20,7 +20,7 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; document.querySelector('#options').style.display = this.checked ? 'none' : 'inline'; $sign.disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; $options.style.display = this.checked ? 'none' : 'inline'; $sign.disabled = !this.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
@@ -61,14 +61,20 @@
     <div>
       <button onclick="$console.value = ''">Clear</button>
     </div>
+    <div>
+      <small>
+        powered by <a href="https://github.com/jamesliu96/geheim">geheim</a>
+        <span id="version"></span>
+      </small>
+    </div>
     <script src="wasm_exec.js"></script>
     <script>
+      window.__version__ = 'v1.6.9';
       window.__x__ = {};
     </script>
     <script>
       const $console = document.querySelector('#console');
       const _log = console.log;
-      const _warn = console.warn;
       console.log = (...args) => {
         _log(...args);
         const argstr = args.join(' ');
@@ -76,9 +82,8 @@
         if (['panic:', 'error:'].some((v) => argstr.includes(v)))
           alert(args.join(' '));
       };
-      console.log('geheim', 'v1.6.9');
-      const go = new Go();
-      let mod, inst;
+      console.log('geheim', __version__);
+      document.querySelector('#version').textContent = __version__;
       const $run = document.querySelector('#run');
       function setReady(x) {
         $run.disabled = !x;
@@ -97,10 +102,12 @@
           const file = this.files.item(0);
           file.arrayBuffer().then((b) => {
             __x__.input = new Uint8Array(b);
-            $fileinfo.textContent = `${file.name} - ${file.size} Bytes`;
+            $fileinfo.textContent = `${file.name} (${file.size} Bytes)`;
           });
         }
       });
+      const go = new Go();
+      let mod, inst;
       async function run() {
         if ($run.disabled) return;
         setReady(false);
@@ -139,7 +146,7 @@
         $el.value = `${df}`;
         __x__[name] = df;
       }
-      const $decrypt = document.querySelector('#decrypt');
+      const $options = document.querySelector('#options');
       const $cipher = document.querySelector('#cipher');
       const $mode = document.querySelector('#mode');
       const $kdf = document.querySelector('#kdf');
