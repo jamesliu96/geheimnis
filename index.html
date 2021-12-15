@@ -12,13 +12,15 @@
   </head>
   <body>
     <div>
-      <input type="file" id="file" />
+      <input type="file" id="file" style="display: none" />
+      <button onclick="$file.click()">Choose File</button>
+      <span id="fileinfo"></span>
     </div>
     <div>
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; document.querySelector('#encrypt_only').style.display = this.checked ? 'none' : 'inline'; document.querySelector('#sign').disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; document.querySelector('#encrypt_only').style.display = this.checked ? 'none' : 'inline'; $sign.disabled = !this.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="encrypt_only">
@@ -51,12 +53,31 @@
     <div>
       <button onclick="run()" id="run" disabled>Run</button>
       <button onclick="download()" id="download" disabled>Download</button>
+      <span id="downloadinfo"></span>
+    </div>
+    <div>
+      <textarea id="console" disabled></textarea>
+    </div>
+    <div>
+      <button onclick="$console.value = ''">Clear</button>
     </div>
     <script src="wasm_exec.js"></script>
     <script>
       window.__x__ = {};
     </script>
     <script>
+      const $console = document.querySelector('#console');
+      const _log = console.log;
+      const _warn = console.warn;
+      console.log = (...args) => {
+        _log(...args);
+        $console.value += `${args.join(' ')}\n`;
+      };
+      console.warn = (...args) => {
+        _warn(...args);
+        $console.value += `${args.join(' ')}\n`;
+      };
+      console.log('geheim', 'v1.6.9');
       const go = new Go();
       let mod, inst;
       const $run = document.querySelector('#run');
@@ -64,33 +85,32 @@
         $run.disabled = !x;
       }
       const $download = document.querySelector('#download');
-      function setDownloadable(x) {
+      const $downloadinfo = document.querySelector('#downloadinfo');
+      function setDownloadable(x, l, s) {
         $download.disabled = !x;
+        $downloadinfo.textContent = l ? `${l} Bytes` : '';
+        if (s) $sign.value = s;
       }
       const $file = document.querySelector('#file');
+      const $fileinfo = document.querySelector('#fileinfo');
       $file.addEventListener('change', function () {
         if (this.files.length) {
-          this.files
-            .item(0)
-            .arrayBuffer()
-            .then((b) => {
-              __x__.input = new Uint8Array(b);
-            });
+          const file = this.files.item(0);
+          file.arrayBuffer().then((b) => {
+            __x__.input = new Uint8Array(b);
+            $fileinfo.textContent = `${file.name} - ${file.size} Bytes`;
+          });
         }
       });
       async function run() {
         if ($run.disabled) return;
         setReady(false);
         setDownloadable(false);
-        console.warn('running');
         await go.run(inst);
-        console.warn('done');
         inst = await WebAssembly.instantiate(mod, go.importObject);
         setReady(true);
-        if (__x__.__out__) {
-          setDownloadable(true);
-          $sign.value = __x__.sign;
-        }
+        if (__x__.__out__)
+          setDownloadable(true, __x__.output.length, __x__.sign);
       }
       function download() {
         if ($download.disabled) return;
@@ -100,7 +120,7 @@
         });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'output';
+        a.download = __x__.decrypt ? 'data' : `${__x__.sign}.ghm`;
         a.click();
         URL.revokeObjectURL(blob);
       }

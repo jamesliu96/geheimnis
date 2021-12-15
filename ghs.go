@@ -4,61 +4,12 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"math"
-	"os"
-	"reflect"
-	"runtime"
-	"strings"
 	"syscall/js"
 
 	"github.com/jamesliu96/geheim"
-	"golang.org/x/sys/cpu"
 )
-
-const app = "ghs"
-
-var gitTag = "*"
-var gitRev = "*"
-
-func getCPUFeatures() (d []string) {
-	var v interface{}
-	switch runtime.GOARCH {
-	case "386":
-		fallthrough
-	case "amd64":
-		v = cpu.X86
-	case "arm":
-		v = cpu.ARM
-	case "arm64":
-		v = cpu.ARM64
-	case "mips64":
-		fallthrough
-	case "mips64le":
-		v = cpu.MIPS64X
-	case "ppc64":
-		fallthrough
-	case "ppc64le":
-		v = cpu.PPC64
-	case "s390x":
-		v = cpu.S390X
-	default:
-		return
-	}
-	ks := reflect.TypeOf(v)
-	vs := reflect.ValueOf(v)
-	for i := 0; i < ks.NumField(); i++ {
-		k := ks.Field(i)
-		v := vs.Field(i)
-		if k.Type.Kind() == reflect.Bool && v.Bool() {
-			name := strings.TrimPrefix(k.Name, "Has")
-			if name == k.Name {
-				name = strings.TrimPrefix(k.Name, "Is")
-			}
-			d = append(d, name)
-		}
-	}
-	return
-}
 
 func formatSize(n int64) string {
 	var unit string
@@ -89,36 +40,33 @@ func formatSize(n int64) string {
 	return fmt.Sprintf("%s%sB", fmt.Sprintf(f, math.Max(0, nn)), unit)
 }
 
-func printf(format string, v ...interface{}) {
-	fmt.Fprintf(os.Stderr, format, v...)
-}
-
 var dbg geheim.PrintFunc = func(version int, cipher geheim.Cipher, mode geheim.Mode, kdf geheim.KDF, mac geheim.MAC, md geheim.MD, sec int, pass, salt, iv, key []byte) error {
-	printf("%-8s%d\n", "VERSION", version)
-	printf("%-8s%s(%d)\n", "CIPHER", geheim.CipherNames[cipher], cipher)
+	fmt.Printf("%-8s%d\n", "VERSION", version)
+	fmt.Printf("%-8s%s(%d)\n", "CIPHER", geheim.CipherNames[cipher], cipher)
 	if cipher == geheim.AES {
-		printf("%-8s%s(%d)\n", "MODE", geheim.ModeNames[mode], mode)
+		fmt.Printf("%-8s%s(%d)\n", "MODE", geheim.ModeNames[mode], mode)
 	}
-	printf("%-8s%s(%d)\n", "KDF", geheim.KDFNames[kdf], kdf)
-	printf("%-8s%s(%d)\n", "MAC", geheim.MACNames[mac], mac)
+	fmt.Printf("%-8s%s(%d)\n", "KDF", geheim.KDFNames[kdf], kdf)
+	fmt.Printf("%-8s%s(%d)\n", "MAC", geheim.MACNames[mac], mac)
 	if kdf == geheim.PBKDF2 || mac == geheim.HMAC {
-		printf("%-8s%s(%d)\n", "MD", geheim.MDNames[md], md)
+		fmt.Printf("%-8s%s(%d)\n", "MD", geheim.MDNames[md], md)
 	}
-	iter, memory := geheim.GetSecIterMemory(sec)
+	iter, memory, sec := geheim.GetSecIterMemory(sec)
 	if kdf == geheim.PBKDF2 {
-		printf("%-8s%d(%d)\n", "SEC", sec, iter)
+		fmt.Printf("%-8s%d(%d)\n", "SEC", sec, iter)
 	} else {
-		printf("%-8s%d(%s)\n", "SEC", sec, formatSize(int64(memory)))
+		fmt.Printf("%-8s%d(%s)\n", "SEC", sec, formatSize(int64(memory)))
 	}
-	printf("%-8s%s(%x)\n", "PASS", pass, pass)
-	printf("%-8s%x\n", "SALT", salt)
-	printf("%-8s%x\n", "IV", iv)
-	printf("%-8s%x\n", "KEY", key)
+	fmt.Printf("%-8s%s(%x)\n", "PASS", pass, pass)
+	fmt.Printf("%-8s%x\n", "SALT", salt)
+	fmt.Printf("%-8s%x\n", "IV", iv)
+	fmt.Printf("%-8s%x\n", "KEY", key)
 	return nil
 }
 
 func main() {
-	printf("%s [%s-%s] %s (%s) %s\n", app, runtime.GOOS, runtime.GOARCH, gitTag, gitRev, getCPUFeatures())
+	log.Println("start")
+	defer log.Println("end")
 	global := js.Global()
 	u8 := global.Get("Uint8Array")
 	x := global.Get("__x__")
@@ -143,7 +91,12 @@ func main() {
 	}
 	input := x.Get("input")
 	pass := x.Get("pass")
-	if !input.Truthy() || !pass.Truthy() {
+	if !input.Truthy() {
+		log.Fatalln("error:", "no input")
+		return
+	}
+	if !pass.Truthy() {
+		log.Fatalln("error:", "no passcode")
 		return
 	}
 	inputBytes := make([]byte, input.Length())
@@ -157,13 +110,13 @@ func main() {
 			if b, err := hex.DecodeString(signex.String()); err == nil {
 				signexBytes = b
 			} else {
-				printf("%e", err)
+				log.Fatalln("error:", err)
 				return
 			}
 		}
 		sign, err := geheim.DecryptVerify(inputBuffer, outputBuffer, []byte(pass.String()), signexBytes, dbg)
 		if err != nil {
-			printf("%e", err)
+			log.Fatalln("error:", err)
 			return
 		}
 		output := u8.New(outputBuffer.Len())
@@ -174,7 +127,7 @@ func main() {
 	} else {
 		sign, err := geheim.Encrypt(inputBuffer, outputBuffer, []byte(pass.String()), geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), dbg)
 		if err != nil {
-			printf("%e", err)
+			log.Fatalln("error:", err)
 			return
 		}
 		output := u8.New(outputBuffer.Len())
