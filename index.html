@@ -63,7 +63,7 @@
     </div>
     <div>
       <small>
-        powered by <a href="https://github.com/jamesliu96/geheim">geheim</a>
+        powered by <a href="https://github.com/jamesliu96/geheim">ghm</a>
         <span id="version"></span>
       </small>
     </div>
@@ -82,7 +82,7 @@
         if (['panic:', 'error:'].some((v) => argstr.includes(v)))
           alert(args.join(' '));
       };
-      console.log('geheim', __version__);
+      console.log('ghm', __version__);
       document.querySelector('#version').textContent = __version__;
       const $run = document.querySelector('#run');
       function setReady(x) {
