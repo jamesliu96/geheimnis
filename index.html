@@ -71,117 +71,154 @@
     </div>
     <script src="wasm_exec.js"></script>
     <script>
-      window.__version__ = 'v1.6.10';
+      window.__version__ = 'v1.6.11';
       window.__x__ = {};
     </script>
     <script>
-      const $console = document.querySelector('#console');
-      const _log = console.log;
-      console.log = (...args) => {
-        _log(...args);
-        const argstr = args.join(' ');
-        $console.value += `${argstr}\n`;
-        if (['panic:', 'error:'].some((v) => argstr.includes(v)))
-          alert(args.join(' '));
-      };
-      console.log('geheim', __version__);
-      document.querySelector('#version').textContent = __version__;
-      const $run = document.querySelector('#run');
-      function setReady(x) {
-        $run.disabled = !x;
-      }
-      const $download = document.querySelector('#download');
-      const $downloadinfo = document.querySelector('#downloadinfo');
-      function setDownloadable(x, l, s) {
-        $download.disabled = !x;
-        $downloadinfo.textContent = l ? `${l} Bytes` : '';
-        if (s) $sign.value = s;
-      }
-      const $file = document.querySelector('#file');
-      const $fileinfo = document.querySelector('#fileinfo');
-      $file.addEventListener('change', function () {
-        if (this.files.length) {
-          const file = this.files.item(0);
-          file.arrayBuffer().then((b) => {
-            __x__.input = new Uint8Array(b);
-            $fileinfo.textContent = `${file.name} (${file.size} Bytes)`;
-          });
-        }
-      });
-      const go = new Go();
-      let mod, inst;
-      async function run() {
-        if ($run.disabled) return;
-        setReady(false);
-        setDownloadable(false);
-        await go.run(inst);
-        inst = await WebAssembly.instantiate(mod, go.importObject);
-        setReady(true);
-        if (__x__.__out__)
-          setDownloadable(true, __x__.output.length, __x__.sign);
-      }
-      function download() {
-        if ($download.disabled) return;
-        if (!__x__.output) return;
-        const blob = new Blob([__x__.output], {
-          type: 'application/octet-stream',
-        });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = __x__.decrypt ? 'data' : `${__x__.sign}.ghm`;
-        a.click();
-        URL.revokeObjectURL(blob);
-      }
-      function setOptions(str, df, $el, name) {
-        str
-          .split(', ')
-          .map((d) => {
-            const [value, text] = d.split(':');
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = text;
-            return option;
-          })
-          .forEach((v) => {
-            $el.appendChild(v);
-          });
-        $el.value = `${df}`;
-        __x__[name] = df;
-      }
-      const $options = document.querySelector('#options');
-      const $cipher = document.querySelector('#cipher');
-      const $mode = document.querySelector('#mode');
-      const $kdf = document.querySelector('#kdf');
-      const $mac = document.querySelector('#mac');
-      const $md = document.querySelector('#md');
-      const $sec = document.querySelector('#sec');
-      const $sign = document.querySelector('#sign');
-      WebAssembly.instantiateStreaming(fetch('ghs.wasm'), go.importObject)
-        .then((result) => {
-          mod = result.module;
-          inst = result.instance;
+      window.addEventListener('load', () => {
+        window.$console = document.querySelector('#console');
+        window.$options = document.querySelector('#options');
+        window.$sign = document.querySelector('#sign');
+        window.$file = document.querySelector('#file');
+        window.run = async () => {
+          if ($run.disabled) return;
+          setReady(false);
+          setDownloadable(false);
+          await sleep(0);
+          await go.run(inst);
+          inst = await WebAssembly.instantiate(mod, go.importObject);
           setReady(true);
-        })
-        .then(run)
-        .then(() => {
-          setOptions(
-            __x__.CipherString,
-            __x__.DefaultCipher,
-            $cipher,
-            'cipher'
-          );
-          setOptions(__x__.ModeString, __x__.DefaultMode, $mode, 'mode');
-          setOptions(__x__.KDFString, __x__.DefaultKDF, $kdf, 'kdf');
-          setOptions(__x__.MACString, __x__.DefaultMAC, $mac, 'mac');
-          setOptions(__x__.MDString, __x__.DefaultMD, $md, 'md');
-          $sec.min = `${__x__.MinSec}`;
-          $sec.max = `${__x__.MaxSec}`;
-          $sec.value = `${__x__.DefaultSec}`;
-          __x__.sec = __x__.DefaultSec;
-        })
-        .catch((err) => {
-          console.log('error:', err);
+          if (__x__.__out__)
+            setDownloadable(true, __x__.output.length, __x__.sign);
+        };
+        window.download = () => {
+          if ($download.disabled) return;
+          if (!__x__.output) return;
+          const blob = new Blob([__x__.output], {
+            type: 'application/octet-stream',
+          });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = __x__.decrypt ? 'data' : `${__x__.sign}.ghm`;
+          a.click();
+          URL.revokeObjectURL(blob);
+        };
+        const _log = console.log;
+        console.log = (...args) => {
+          _log(...args);
+          const argstr = args.join(' ');
+          $console.value += `${argstr}\n`;
+          if (['panic:', 'error:'].some((v) => argstr.includes(v)))
+            alert(args.join(' '));
+        };
+        console.log('geheim', __version__);
+        document.querySelector('#version').textContent = __version__;
+        const $run = document.querySelector('#run');
+        const setReady = (x) => {
+          $run.disabled = !x;
+        };
+        const $download = document.querySelector('#download');
+        const $downloadinfo = document.querySelector('#downloadinfo');
+        const setDownloadable = (x, l, s) => {
+          $download.disabled = !x;
+          $downloadinfo.textContent = l ? `${l} Bytes` : '';
+          if (s) $sign.value = s;
+        };
+        const $fileinfo = document.querySelector('#fileinfo');
+        $file.addEventListener('change', function () {
+          if (this.files.length) {
+            const file = this.files.item(0);
+            file.arrayBuffer().then((b) => {
+              __x__.input = new Uint8Array(b);
+              $fileinfo.textContent = `${file.name} (${file.size} Bytes)`;
+            });
+          }
         });
+        const go = new Go();
+        let mod, inst;
+        const sleep = (t) =>
+          new Promise((r) => {
+            setTimeout(r, t);
+          });
+        const setOptions = ($el, str, df, desc, key) => {
+          const $placeholder = document.createElement('option');
+          $placeholder.textContent = desc;
+          $placeholder.disabled = true;
+          $el.appendChild($placeholder);
+          str
+            .split(', ')
+            .map((d) => {
+              const [value, text] = d.split(':');
+              const $option = document.createElement('option');
+              $option.value = value;
+              $option.textContent = text;
+              return $option;
+            })
+            .forEach((v) => {
+              $el.appendChild(v);
+            });
+          $el.value = `${df}`;
+          __x__[key] = df;
+        };
+        const $cipher = document.querySelector('#cipher');
+        const $mode = document.querySelector('#mode');
+        const $kdf = document.querySelector('#kdf');
+        const $mac = document.querySelector('#mac');
+        const $md = document.querySelector('#md');
+        const $sec = document.querySelector('#sec');
+        WebAssembly.instantiateStreaming(fetch('ghs.wasm'), go.importObject)
+          .then((result) => {
+            mod = result.module;
+            inst = result.instance;
+            setReady(true);
+          })
+          .then(run)
+          .then(() => {
+            setOptions(
+              $cipher,
+              __x__.CipherString,
+              __x__.DefaultCipher,
+              __x__.CipherDesc,
+              'cipher'
+            );
+            setOptions(
+              $mode,
+              __x__.ModeString,
+              __x__.DefaultMode,
+              __x__.ModeDesc,
+              'mode'
+            );
+            setOptions(
+              $kdf,
+              __x__.KDFString,
+              __x__.DefaultKDF,
+              __x__.KDFDesc,
+              'kdf'
+            );
+            setOptions(
+              $mac,
+              __x__.MACString,
+              __x__.DefaultMAC,
+              __x__.MACDesc,
+              'mac'
+            );
+            setOptions(
+              $md,
+              __x__.MDString,
+              __x__.DefaultMD,
+              __x__.MDDesc,
+              'md'
+            );
+            $sec.placeholder = __x__.SecDesc;
+            $sec.min = `${__x__.MinSec}`;
+            $sec.max = `${__x__.MaxSec}`;
+            $sec.value = `${__x__.DefaultSec}`;
+            __x__.sec = __x__.DefaultSec;
+          })
+          .catch((err) => {
+            console.log('error:', err);
+          });
+      });
     </script>
   </body>
 </html>
