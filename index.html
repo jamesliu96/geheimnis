@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   </head>
-  <body>
+  <body style="font-family: sans-serif">
     <div>
       <input type="file" id="file" style="display: none" />
       <button onclick="$file.click()">Choose File</button>
@@ -48,6 +48,7 @@
         onchange="__x__.sign = this.value"
         placeholder="signature hex"
         disabled
+        style="font-family: monospace"
       />
     </div>
     <div>
@@ -56,20 +57,21 @@
       <span id="downloadinfo"></span>
     </div>
     <div>
-      <textarea id="console" disabled></textarea>
+      <textarea id="console" disabled style="font-family: monospace"></textarea>
     </div>
     <div>
       <button onclick="$console.value = ''">Clear</button>
     </div>
     <div>
       <small>
-        powered by <a href="https://github.com/jamesliu96/geheim">ghm</a>
+        <a href="https://github.com/jamesliu96/geheim">geheim</a
+        ><em><a href="https://github.com/jamesliu96/geheimnis">nis</a></em>
         <span id="version"></span>
       </small>
     </div>
     <script src="wasm_exec.js"></script>
     <script>
-      window.__version__ = 'v1.6.9';
+      window.__version__ = 'v1.6.10';
       window.__x__ = {};
     </script>
     <script>
@@ -82,7 +84,7 @@
         if (['panic:', 'error:'].some((v) => argstr.includes(v)))
           alert(args.join(' '));
       };
-      console.log('ghm', __version__);
+      console.log('geheim', __version__);
       document.querySelector('#version').textContent = __version__;
       const $run = document.querySelector('#run');
       function setReady(x) {
