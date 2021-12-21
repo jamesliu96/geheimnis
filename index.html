@@ -84,7 +84,7 @@
           if ($run.disabled) return;
           setReady(false);
           setDownloadable(false);
-          await sleep(0);
+          await sleep();
           await go.run(inst);
           inst = await WebAssembly.instantiate(mod, go.importObject);
           setReady(true);
@@ -113,6 +113,16 @@
         };
         console.log('geheim', __version__);
         document.querySelector('#version').textContent = __version__;
+        const sleep = (t = 0) =>
+          new Promise((r) => {
+            setTimeout(r, t);
+          });
+        const formatSize = (n) => {
+          if (n >= 1 << 30) return `${(n / (1 << 30)).toFixed(2)} GB`;
+          if (n >= 1 << 20) return `${(n / (1 << 20)).toFixed(2)} MB`;
+          if (n >= 1 << 10) return `${(n / (1 << 10)).toFixed(2)} KB`;
+          return `${n} bytes`;
+        };
         const $run = document.querySelector('#run');
         const setReady = (x) => {
           $run.disabled = !x;
@@ -121,25 +131,30 @@
         const $downloadinfo = document.querySelector('#downloadinfo');
         const setDownloadable = (x, l, s) => {
           $download.disabled = !x;
-          $downloadinfo.textContent = l ? `${l} Bytes` : '';
+          $downloadinfo.textContent = l ? `${formatSize(l)}` : '';
           if (s) $sign.value = s;
         };
         const $fileinfo = document.querySelector('#fileinfo');
         $file.addEventListener('change', function () {
           if (this.files.length) {
             const file = this.files.item(0);
-            file.arrayBuffer().then((b) => {
-              __x__.input = new Uint8Array(b);
-              $fileinfo.textContent = `${file.name} (${file.size} Bytes)`;
-            });
+            file
+              .arrayBuffer()
+              .then((b) => {
+                __x__.input = new Uint8Array(b);
+                $fileinfo.textContent = `${file.name} (${formatSize(
+                  file.size
+                )})`;
+              })
+              .catch((err) => {
+                delete __x__.input;
+                $fileinfo.textContent = '';
+                console.log('error:', err);
+              });
           }
         });
         const go = new Go();
         let mod, inst;
-        const sleep = (t) =>
-          new Promise((r) => {
-            setTimeout(r, t);
-          });
         const setOptions = ($el, str, df, desc, key) => {
           const $placeholder = document.createElement('option');
           $placeholder.textContent = desc;
