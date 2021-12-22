@@ -162,15 +162,12 @@
           $el.appendChild($placeholder);
           str
             .split(', ')
-            .map((d) => {
+            .forEach((d) => {
               const [value, text] = d.split(':');
               const $option = document.createElement('option');
               $option.value = value;
               $option.textContent = text;
-              return $option;
-            })
-            .forEach((v) => {
-              $el.appendChild(v);
+              $el.appendChild($option);
             });
           $el.value = `${df}`;
           __x__[key] = df;
