@@ -160,15 +160,13 @@
           $placeholder.textContent = desc;
           $placeholder.disabled = true;
           $el.appendChild($placeholder);
-          str
-            .split(', ')
-            .forEach((d) => {
-              const [value, text] = d.split(':');
-              const $option = document.createElement('option');
-              $option.value = value;
-              $option.textContent = text;
-              $el.appendChild($option);
-            });
+          str.split(', ').forEach((d) => {
+            const [value, text] = d.split(':');
+            const $option = document.createElement('option');
+            $option.value = value;
+            $option.textContent = text;
+            $el.appendChild($option);
+          });
           $el.value = `${df}`;
           __x__[key] = df;
         };
