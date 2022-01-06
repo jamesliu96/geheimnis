@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
+    />
+    <title>XP</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
+  <body style="font-family: sans-serif">
+    <div>
+      <input id="a" />
+      <button id="x" onclick="x()" disabled>x</button>
+      <input id="b" />
+      <button id="p" onclick="p()" disabled>p</button>
+      <input id="c" />
+    </div>
+    <div>
+      <small>
+        <a href="../">geheimnis</a>
+      </small>
+    </div>
+    <script src="../wasm_exec.js"></script>
+    <script>
+      window.addEventListener('load', () => {
+        const $a = document.querySelector('#a');
+        const $x = document.querySelector('#x');
+        const $b = document.querySelector('#b');
+        const $p = document.querySelector('#p');
+        const $c = document.querySelector('#c');
+        let directive = '';
+        const run = async () => {
+          if ($x.disabled || $p.disabled) return;
+          setReady(false);
+          await sleep();
+          go.argv = ['xp', directive, $a.value, $b.value];
+          await go.run(inst);
+          inst = await WebAssembly.instantiate(mod, go.importObject);
+          setReady(true);
+        };
+        window.p = async () => {
+          directive = 'p';
+          await run();
+        };
+        window.x = async () => {
+          directive = 'x';
+          await run();
+        };
+        const _log = console.log;
+        console.log = (...args) => {
+          _log(...args);
+          const argstr = args.join(' ');
+          if (['panic:', 'error:'].some((v) => argstr.includes(v))) {
+            alert(argstr);
+            return;
+          }
+          if (directive === 'p') {
+            const [a, b] = argstr.split('\n').map((s) => s.slice(5));
+            $a.value = a;
+            $b.value = b;
+            $c.value = '';
+          } else if (directive === 'x') {
+            $c.value = argstr;
+          }
+        };
+        const sleep = (t = 0) =>
+          new Promise((r) => {
+            setTimeout(r, t);
+          });
+        const setReady = (x) => {
+          $x.disabled = $p.disabled = !x;
+        };
+        const go = new Go();
+        let mod, inst;
+        WebAssembly.instantiateStreaming(fetch('xp.wasm'), go.importObject)
+          .then((result) => {
+            mod = result.module;
+            inst = result.instance;
+            setReady(true);
+          })
+          .catch((err) => {
+            console.log('error:', err);
+          });
+      });
+    </script>
+  </body>
+</html>

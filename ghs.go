@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"os"
 	"syscall/js"
@@ -43,12 +44,12 @@ func main() {
 	}
 	input := x.Get("input")
 	if !input.Truthy() {
-		log.Fatalln("error:", "no input")
+		fmt.Println("error:", "no input")
 		return
 	}
 	pass := x.Get("pass")
 	if !pass.Truthy() {
-		log.Fatalln("error:", "no passcode")
+		fmt.Println("error:", "no passcode")
 		return
 	}
 	inputBytes := make([]byte, input.Length())
@@ -62,20 +63,20 @@ func main() {
 			if b, err := hex.DecodeString(signex.String()); err == nil {
 				signexBytes = b
 			} else {
-				log.Fatalln("error:", err)
+				fmt.Println("error:", err)
 				return
 			}
 		}
 		sign, err := geheim.DecryptVerify(inputBuffer, outputBuffer, []byte(pass.String()), signexBytes, geheim.NewPrintFunc(os.Stdout))
 		if err != nil {
-			log.Fatalln("error:", err)
+			fmt.Println("error:", err)
 			return
 		}
 		x.Set("sign", hex.EncodeToString(sign))
 	} else {
 		sign, err := geheim.Encrypt(inputBuffer, outputBuffer, []byte(pass.String()), geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), geheim.NewPrintFunc(os.Stdout))
 		if err != nil {
-			log.Fatalln("error:", err)
+			fmt.Println("error:", err)
 			return
 		}
 		x.Set("sign", hex.EncodeToString(sign))

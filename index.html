@@ -69,6 +69,11 @@
         <span id="version"></span>
       </small>
     </div>
+    <div>
+      <small>
+        <a href="/xp/">xp</a>
+      </small>
+    </div>
     <script src="wasm_exec.js"></script>
     <script>
       window.__version__ = 'v1.18.4';
@@ -85,6 +90,7 @@
           setReady(false);
           setDownloadable(false);
           await sleep();
+          go.argv = ['ghs'];
           await go.run(inst);
           inst = await WebAssembly.instantiate(mod, go.importObject);
           setReady(true);
@@ -109,7 +115,7 @@
           const argstr = args.join(' ');
           $console.value += `${argstr}\n`;
           if (['panic:', 'error:'].some((v) => argstr.includes(v)))
-            alert(args.join(' '));
+            alert(argstr);
         };
         console.log('geheim', __version__);
         document.querySelector('#version').textContent = __version__;
