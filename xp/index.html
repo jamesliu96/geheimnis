@@ -49,6 +49,7 @@
           directive = 'x';
           await run();
         };
+        const hex = /[a-f\d]{64}/;
         const _log = console.log;
         console.log = (...args) => {
           _log(...args);
@@ -59,11 +60,15 @@
           }
           if (directive === 'p') {
             const [a, b] = argstr.split('\n').map((s) => s.slice(5));
-            $a.value = a;
-            $b.value = b;
-            $c.value = '';
+            if ([a, b].every((s) => hex.test(s))) {
+              $a.value = a;
+              $b.value = b;
+              $c.value = '';
+            }
           } else if (directive === 'x') {
-            $c.value = argstr;
+            if (hex.test(argstr)) {
+              $c.value = argstr;
+            }
           }
         };
         const sleep = (t = 0) =>
