@@ -36,7 +36,12 @@
           if ($x.disabled || $p.disabled) return;
           setReady(false);
           await sleep();
-          go.argv = ['xp', directive, $a.value, $b.value];
+          go.argv = [
+            'xp',
+            directive,
+            $a.value,
+            ...($b.value ? [$b.value] : []),
+          ];
           await go.run(inst);
           inst = await WebAssembly.instantiate(mod, go.importObject);
           setReady(true);
@@ -64,10 +69,16 @@
               $a.value = a;
               $b.value = b;
               $c.value = '';
+            } else {
+              $a.value = '';
+              $b.value = '';
+              $c.value = '';
             }
           } else if (directive === 'x') {
             if (hex.test(argstr)) {
               $c.value = argstr;
+            } else {
+              $c.value = '';
             }
           }
         };
