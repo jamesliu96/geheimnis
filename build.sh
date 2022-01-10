@@ -7,7 +7,7 @@ app=ghs
 tag=$(git describe --tags --always)
 rev=$(git rev-list -1 HEAD)
 ldflags="-X main.gitTag=$tag -X main.gitRev=$rev"
-out=ghs.wasm
+out=$app.wasm
 echo "# $pkg $tag $rev" 1>&2
 
 printf "removing \"$out\" ... "
