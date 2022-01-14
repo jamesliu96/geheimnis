@@ -54,7 +54,7 @@
           directive = 'x';
           await run();
         };
-        const hex = /[a-f\d]{64}/;
+        const regex = /^(?:(priv|pub)\s+)?([a-f\d]{64})$/;
         const _log = console.log;
         console.log = (...args) => {
           _log(...args);
@@ -64,19 +64,33 @@
             return;
           }
           if (directive === 'p') {
-            const [a, b] = argstr.split('\n').map((s) => s.slice(5));
-            if ([a, b].every((s) => hex.test(s))) {
-              $a.value = a;
-              $b.value = b;
-              $c.value = '';
-            } else {
-              $a.value = '';
-              $b.value = '';
-              $c.value = '';
+            const lines = argstr.split('\n');
+            let ok = false;
+            for (const line of lines) {
+              const m = regex.exec(line);
+              if (m) {
+                switch (m[1]) {
+                  case 'priv': {
+                    $a.value = m[2];
+                    ok = true;
+                    break;
+                  }
+                  case 'pub': {
+                    $b.value = m[2];
+                    ok = true;
+                    break;
+                  }
+                }
+              }
             }
+            if (!ok) {
+              $a.value = $b.value = '';
+            }
+            $c.value = '';
           } else if (directive === 'x') {
-            if (hex.test(argstr)) {
-              $c.value = argstr;
+            const m = regex.exec(argstr);
+            if (m && !m[1]) {
+              $c.value = m[2];
             } else {
               $c.value = '';
             }
