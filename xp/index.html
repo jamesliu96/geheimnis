@@ -20,10 +20,19 @@
     </div>
     <div>
       <small>
+        <a href="https://github.com/jamesliu96/xp">xp</a>
+        <span id="version"></span>
+      </small>
+    </div>
+    <div>
+      <small>
         <a href="../">geheimnis</a>
       </small>
     </div>
     <script src="../wasm_exec.js"></script>
+    <script>
+      window.__version__ = 'v1.2.1';
+    </script>
     <script>
       window.addEventListener('load', () => {
         const $a = document.querySelector('#a');
@@ -96,6 +105,8 @@
             }
           }
         };
+        _log('geheim', __version__);
+        document.querySelector('#version').textContent = __version__;
         const sleep = (t = 0) =>
           new Promise((r) => {
             setTimeout(r, t);
