@@ -24,10 +24,7 @@
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
-        <select
-          id="cipher"
-          onchange="__x__.cipher = +this.value; $mode.disabled = this.value === '2'"
-        ></select>
+        <select id="cipher" onchange="__x__.cipher = +this.value"></select>
         <select id="mode" onchange="__x__.mode = +this.value"></select>
         <select id="kdf" onchange="__x__.kdf = +this.value"></select>
         <select id="mac" onchange="__x__.mac = +this.value"></select>
