@@ -30,9 +30,7 @@
       </small>
     </div>
     <script src="../wasm_exec.js"></script>
-    <script>
-      window.__version__ = 'v1.2.5';
-    </script>
+    <script src="./version.js"></script>
     <script>
       window.addEventListener('load', () => {
         const $a = document.querySelector('#a');
@@ -92,16 +90,13 @@
                 }
               }
             }
-            if (!ok) {
-              $a.value = $b.value = '';
+            if (ok) {
+              $c.value = '';
             }
-            $c.value = '';
           } else if (directive === 'x') {
             const m = regex.exec(argstr);
             if (m && !m[1]) {
               $c.value = m[2];
-            } else {
-              $c.value = '';
             }
           }
         };
