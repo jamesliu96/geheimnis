@@ -106,7 +106,10 @@
           });
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = __x__.decrypt ? 'data' : `${__x__.sign}.ghm`;
+          const filename = $file.files.item(0).name;
+          a.download = __x__.decrypt
+            ? `${filename}.bin`
+            : `${filename}.${__x__.sign}.ghm`;
           a.click();
           URL.revokeObjectURL(blob);
         };
