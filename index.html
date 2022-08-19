@@ -108,7 +108,9 @@
           a.href = URL.createObjectURL(blob);
           const filename = $file.files.item(0).name;
           a.download = __x__.decrypt
-            ? `${filename}.bin`
+            ? filename.endsWith(`.${__x__.sign}.ghm`)
+              ? filename.slice(0, filename.indexOf(`.${__x__.sign}.ghm`))
+              : `${filename}.bin`
             : `${filename}.${__x__.sign}.ghm`;
           a.click();
           URL.revokeObjectURL(blob);
