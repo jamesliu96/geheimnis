@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   </head>
-  <body style="font-family: sans-serif">
+  <body style="font-family: sans-serif; user-select: none">
     <div>
       <input type="file" id="file" style="display: none" />
       <button onclick="$file.click()">Choose File</button>
@@ -20,7 +20,7 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; $options.style.display = this.checked ? 'none' : 'inline'; $sign.disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; Array.from($options.children).forEach(e => e.disabled = this.checked); $sign.disabled = !this.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
@@ -75,7 +75,7 @@
       </small>
     </div>
     <script src="wasm_exec.js"></script>
-    <script src="./version.js"></script>
+    <script src="/version.js"></script>
     <script>
       window.__x__ = {};
     </script>
@@ -188,7 +188,7 @@
         const $mac = document.querySelector('#mac');
         const $md = document.querySelector('#md');
         const $sec = document.querySelector('#sec');
-        WebAssembly.instantiateStreaming(fetch('ghs.wasm'), go.importObject)
+        WebAssembly.instantiateStreaming(fetch('/ghs.wasm'), go.importObject)
           .then((result) => {
             mod = result.module;
             inst = result.instance;

@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   </head>
-  <body style="font-family: sans-serif">
+  <body style="font-family: sans-serif; user-select: none">
     <div>
       <input id="a" />
       <button id="x" onclick="x()" disabled>x</button>
@@ -26,11 +26,11 @@
     </div>
     <div>
       <small>
-        <a href="../">geheimnis</a>
+        <a href="/">geheimnis</a>
       </small>
     </div>
-    <script src="../wasm_exec.js"></script>
-    <script src="./version.js"></script>
+    <script src="/wasm_exec.js"></script>
+    <script src="/xp/version.js"></script>
     <script>
       window.addEventListener('load', () => {
         const $a = document.querySelector('#a');
@@ -111,7 +111,7 @@
         };
         const go = new Go();
         let mod, inst;
-        WebAssembly.instantiateStreaming(fetch('xp.wasm'), go.importObject)
+        WebAssembly.instantiateStreaming(fetch('/xp/xp.wasm'), go.importObject)
           .then((result) => {
             mod = result.module;
             inst = result.instance;
