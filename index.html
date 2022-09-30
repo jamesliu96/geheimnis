@@ -24,10 +24,19 @@
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
-        <select id="cipher" onchange="__x__.cipher = +this.value"></select>
+        <select
+          id="cipher"
+          onchange="__x__.cipher = +this.value; $mode.disabled = __x__.cipher !== 1"
+        ></select>
         <select id="mode" onchange="__x__.mode = +this.value"></select>
-        <select id="kdf" onchange="__x__.kdf = +this.value"></select>
-        <select id="mac" onchange="__x__.mac = +this.value"></select>
+        <select
+          id="kdf"
+          onchange="__x__.kdf = +this.value; $md.disabled = __x__.kdf !== 1 && __x__.mac !== 1"
+        ></select>
+        <select
+          id="mac"
+          onchange="__x__.mac = +this.value; $md.disabled = __x__.kdf !== 1 && __x__.mac !== 1"
+        ></select>
         <select id="md" onchange="__x__.md = +this.value"></select>
         <input type="number" id="sec" onchange="__x__.sec = +this.value" />
       </span>
@@ -86,6 +95,16 @@
         window.$sign = document.querySelector('#sign');
         window.$file = document.querySelector('#file');
         window.$mode = document.querySelector('#mode');
+        window.$run = document.querySelector('#run');
+        window.$download = document.querySelector('#download');
+        window.$downloadinfo = document.querySelector('#downloadinfo');
+        window.$fileinfo = document.querySelector('#fileinfo');
+        window.$cipher = document.querySelector('#cipher');
+        window.$mode = document.querySelector('#mode');
+        window.$kdf = document.querySelector('#kdf');
+        window.$mac = document.querySelector('#mac');
+        window.$md = document.querySelector('#md');
+        window.$sec = document.querySelector('#sec');
         window.run = async () => {
           if ($run.disabled) return;
           setReady(false);
@@ -135,18 +154,14 @@
           if (n >= 1 << 10) return `${(n / (1 << 10)).toFixed(2)} KB`;
           return `${n} bytes`;
         };
-        const $run = document.querySelector('#run');
         const setReady = (x) => {
           $run.disabled = !x;
         };
-        const $download = document.querySelector('#download');
-        const $downloadinfo = document.querySelector('#downloadinfo');
         const setDownloadable = (x, l, s) => {
           $download.disabled = !x;
           $downloadinfo.textContent = l ? `${formatSize(l)}` : '';
           if (s) $sign.value = s;
         };
-        const $fileinfo = document.querySelector('#fileinfo');
         $file.addEventListener('change', function () {
           if (this.files.length) {
             const file = this.files.item(0);
@@ -168,10 +183,10 @@
         const go = new Go();
         let mod, inst;
         const setOptions = ($el, str, df, desc, key) => {
-          const $placeholder = document.createElement('option');
-          $placeholder.textContent = desc;
-          $placeholder.disabled = true;
-          $el.appendChild($placeholder);
+          const $o = document.createElement('option');
+          $o.textContent = desc;
+          $o.disabled = true;
+          $el.appendChild($o);
           str.split(', ').forEach((d) => {
             const [value, text] = d.split(':');
             const $option = document.createElement('option');
@@ -182,12 +197,6 @@
           $el.value = `${df}`;
           __x__[key] = df;
         };
-        const $cipher = document.querySelector('#cipher');
-        const $mode = document.querySelector('#mode');
-        const $kdf = document.querySelector('#kdf');
-        const $mac = document.querySelector('#mac');
-        const $md = document.querySelector('#md');
-        const $sec = document.querySelector('#sec');
         WebAssembly.instantiateStreaming(fetch('/ghs.wasm'), go.importObject)
           .then((result) => {
             mod = result.module;
