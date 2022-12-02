@@ -12,11 +12,11 @@
   </head>
   <body style="font-family: sans-serif; user-select: none">
     <div>
-      <input id="a" />
+      <input id="priv" placeholder="private" />
       <button id="x" onclick="x()" disabled>x</button>
-      <input id="b" />
+      <input id="pub" placeholder="public" />
       <button id="p" onclick="p()" disabled>p</button>
-      <input id="c" />
+      <input id="shared" placeholder="shared" disabled />
     </div>
     <div>
       <small>
@@ -25,18 +25,32 @@
     </div>
     <div>
       <small>
-        <a href="/">geheimnis</a>
+        <a id="link" href="/">geheim</a>
       </small>
     </div>
     <script src="/wasm_exec.js"></script>
     <script src="/version.js"></script>
     <script>
       window.addEventListener('load', () => {
-        const $a = document.querySelector('#a');
+        const $priv = document.querySelector('#priv');
         const $x = document.querySelector('#x');
-        const $b = document.querySelector('#b');
+        const $pub = document.querySelector('#pub');
         const $p = document.querySelector('#p');
-        const $c = document.querySelector('#c');
+        const $shared = document.querySelector('#shared');
+        const $version = document.querySelector('#version');
+        const $link = document.querySelector('#link');
+        if (self !== top) {
+          $priv.disabled = true;
+          $priv.type = 'password';
+          $x.textContent = 'Share';
+          $pub.addEventListener('click', () => {
+            $pub.select();
+            navigator.clipboard.writeText($pub.value);
+          });
+          $p.textContent = 'Generate';
+          $shared.type = 'password';
+          $version.style.display = $link.style.display = 'none';
+        }
         let directive = '';
         const run = async () => {
           if ($x.disabled || $p.disabled) return;
@@ -45,8 +59,8 @@
           go.argv = [
             'xp',
             directive,
-            $a.value,
-            ...($b.value ? [$b.value] : []),
+            $priv.value,
+            ...($pub.value ? [$pub.value] : []),
           ];
           await go.run(inst);
           inst = await WebAssembly.instantiate(mod, go.importObject);
@@ -77,12 +91,12 @@
               if (m) {
                 switch (m[1]) {
                   case 'priv': {
-                    $a.value = m[2];
+                    $priv.value = m[2];
                     ok = true;
                     break;
                   }
                   case 'pub': {
-                    $b.value = m[2];
+                    $pub.value = m[2];
                     ok = true;
                     break;
                   }
@@ -90,17 +104,18 @@
               }
             }
             if (ok) {
-              $c.value = '';
+              $shared.value = '';
             }
           } else if (directive === 'x') {
             const m = regex.exec(argstr);
             if (m && !m[1]) {
-              $c.value = m[2];
+              $shared.value = m[2];
+              parent.postMessage({ shared: m[2] }, '*');
             }
           }
         };
         _log('geheim', __version__);
-        document.querySelector('#version').textContent = __version__;
+        $version.textContent = __version__;
         const sleep = (t = 0) =>
           new Promise((r) => {
             setTimeout(r, t);
