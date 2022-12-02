@@ -41,14 +41,9 @@
         const $link = document.querySelector('#link');
         if (self !== top) {
           $priv.disabled = true;
-          $priv.type = 'password';
+          $priv.type = $shared.type = 'password';
           $x.textContent = 'Share';
-          $pub.addEventListener('click', () => {
-            $pub.select();
-            navigator.clipboard.writeText($pub.value);
-          });
           $p.textContent = 'Generate';
-          $shared.type = 'password';
           $version.style.display = $link.style.display = 'none';
         }
         let directive = '';
