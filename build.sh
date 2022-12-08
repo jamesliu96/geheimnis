@@ -11,7 +11,9 @@ out=$app.wasm
 echo "# $pkg $tag $rev" 1>&2
 
 printf "removing \"$out\" ... "
-rm -rf $out && echo "SUCCEEDED" || echo "FAILED"
+rm -rf $out \
+  && echo "SUCCEEDED" \
+  || echo "FAILED"
 ldflags="$ldflags -s -w"
 os=js
 arch=wasm
