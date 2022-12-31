@@ -67,14 +67,14 @@ func main() {
 				return
 			}
 		}
-		sign, err := geheim.DecryptVerify(inputBuffer, outputBuffer, []byte(pass.String()), signexBytes, geheim.NewPrintFunc(os.Stdout))
+		sign, err := geheim.DecryptVerify(inputBuffer, outputBuffer, []byte(pass.String()), signexBytes, geheim.NewDefaultPrintFunc(os.Stdout))
 		if err != nil {
 			fmt.Println("error:", err)
 			return
 		}
 		x.Set("sign", hex.EncodeToString(sign))
 	} else {
-		sign, err := geheim.Encrypt(inputBuffer, outputBuffer, []byte(pass.String()), geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), geheim.NewPrintFunc(os.Stdout))
+		sign, err := geheim.Encrypt(inputBuffer, outputBuffer, []byte(pass.String()), geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), geheim.NewDefaultPrintFunc(os.Stdout))
 		if err != nil {
 			fmt.Println("error:", err)
 			return
