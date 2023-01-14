@@ -119,8 +119,13 @@
           $x.disabled = $p.disabled = !x;
         };
         const go = new Go();
-        let mod, inst;
-        WebAssembly.instantiateStreaming(fetch('/xp/xp.wasm'), go.importObject)
+        let mod, inst;WebAssembly.instantiateStreaming(
+          Promise.race([
+            fetch('/xp/xp.wasm'),
+            fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/xp/xp.wasm'),
+          ]),
+          go.importObject
+        )
           .then((result) => {
             mod = result.module;
             inst = result.instance;

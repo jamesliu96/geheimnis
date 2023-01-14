@@ -20,7 +20,7 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; Array.from($options.children).forEach(e => e.disabled = this.checked); $sign.disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; [...$options.children].forEach(e => e.disabled = this.checked); $sign.disabled = !this.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
@@ -196,7 +196,13 @@
           $el.value = `${df}`;
           __x__[key] = df;
         };
-        WebAssembly.instantiateStreaming(fetch('/ghs.wasm'), go.importObject)
+        WebAssembly.instantiateStreaming(
+          Promise.race([
+            fetch('/ghs.wasm'),
+            fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm'),
+          ]),
+          go.importObject
+        )
           .then((result) => {
             mod = result.module;
             inst = result.instance;
