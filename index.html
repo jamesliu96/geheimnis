@@ -20,7 +20,7 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; [...$options.children].forEach(e => e.disabled = this.checked); $sign.disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.disabled = !this.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
@@ -29,14 +29,8 @@
           onchange="__x__.cipher = +this.value; $mode.disabled = __x__.cipher !== 1"
         ></select>
         <select id="mode" onchange="__x__.mode = +this.value"></select>
-        <select
-          id="kdf"
-          onchange="__x__.kdf = +this.value; $md.disabled = __x__.kdf !== 1 && __x__.mac !== 1"
-        ></select>
-        <select
-          id="mac"
-          onchange="__x__.mac = +this.value; $md.disabled = __x__.kdf !== 1 && __x__.mac !== 1"
-        ></select>
+        <select id="kdf" onchange="__x__.kdf = +this.value"></select>
+        <select id="mac" onchange="__x__.mac = +this.value"></select>
         <select id="md" onchange="__x__.md = +this.value"></select>
         <input type="number" id="sec" onchange="__x__.sec = +this.value" />
       </span>
