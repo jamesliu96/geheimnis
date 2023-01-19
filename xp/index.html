@@ -48,7 +48,6 @@
         }
         let directive = '';
         const run = async () => {
-          if ($x.disabled || $p.disabled) return;
           setReady(false);
           await sleep();
           go.argv = [
