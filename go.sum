@@ -1,5 +1,5 @@
-github.com/jamesliu96/geheim v1.24.2 h1:0NzWoF4dG+dSsr45bDZi9556ksGM6LN27x99SuIo7Vs=
-github.com/jamesliu96/geheim v1.24.2/go.mod h1:+MvFEUMAcEl+wN0yHxR9koG3mPaj5FWu4WQWynt/J1Q=
+github.com/jamesliu96/geheim v1.24.3 h1:v82S2TsFiKCEqMl8Rk55BbgTvvRqRQO1XWgqoapHYeo=
+github.com/jamesliu96/geheim v1.24.3/go.mod h1:+MvFEUMAcEl+wN0yHxR9koG3mPaj5FWu4WQWynt/J1Q=
 golang.org/x/crypto v0.5.0 h1:U/0M97KRkSFvyD/3FSmdP5W5swImpNgle/EHFhOsQPE=
 golang.org/x/crypto v0.5.0/go.mod h1:NK/OQwhpMQP3MwtdjgLlYHnH9ebylxKWv3e0fK+mkQU=
 golang.org/x/sys v0.4.0 h1:Zr2JFtRQNX3BCZ8YtxRE9hNJYC8J6I1MVbMg6owUp18=

@@ -106,7 +106,7 @@
           await go.run(inst);
           inst = await WebAssembly.instantiate(mod, go.importObject);
           setReady(true);
-          if (__x__.__out__)
+          if (__x__.output)
             setDownloadable(true, __x__.output.length, __x__.sign);
         };
         window.download = () => {
