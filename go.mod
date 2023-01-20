@@ -2,7 +2,7 @@ module github.com/jamesliu96/geheimnis
 
 go 1.19
 
-require github.com/jamesliu96/geheim v1.24.3
+require github.com/jamesliu96/geheim v1.24.4
 
 require (
 	golang.org/x/crypto v0.5.0 // indirect
