@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 pkg=github.com/jamesliu96/geheimnis
 app=ghs
 tag=$(git describe --tags --always)
@@ -18,7 +16,7 @@ ldflags="$ldflags -s -w"
 os=js
 arch=wasm
 printf "building \"$out\" ... "
-CGO_ENABLED=0 GOOS=$os GOARCH=$arch \
+GOOS=$os GOARCH=$arch \
   go build -trimpath -ldflags="$ldflags" -o $out $pkg \
     && echo "SUCCEEDED" \
     || echo "FAILED"
