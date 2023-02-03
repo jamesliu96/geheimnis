@@ -3,23 +3,29 @@ package main
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"syscall/js"
 
 	"github.com/jamesliu96/geheim"
 )
 
+func printf(format string, a ...any) { fmt.Fprintf(os.Stderr, format, a...) }
+
+func check(err error) {
+	if err != nil {
+		printf("error: %s\n", err)
+		os.Exit(1)
+	}
+}
+
 func main() {
-	log.Println("#run")
-	defer log.Println("#exit")
 	global := js.Global()
 	uint8Array := global.Get("Uint8Array")
 	x := global.Get("__x__")
 	x.Delete("output")
 	if !x.Get("__init__").Truthy() {
-		log.Println("#init")
 		x.Set("CipherString", geheim.CipherString)
 		x.Set("DefaultCipher", int(geheim.DefaultCipher))
 		x.Set("CipherDesc", geheim.CipherDesc)
@@ -44,43 +50,41 @@ func main() {
 	}
 	input := x.Get("input")
 	if !input.Truthy() {
-		fmt.Println("error:", "no input")
-		return
+		check(errors.New("no input"))
 	}
 	pass := x.Get("pass")
 	if !pass.Truthy() {
-		fmt.Println("error:", "no passcode")
-		return
+		check(errors.New("no passcode"))
 	}
+	passBytes := []byte(pass.String())
 	inputBytes := make([]byte, input.Length())
 	js.CopyBytesToGo(inputBytes, input)
 	inputBuffer := bytes.NewBuffer(inputBytes)
+	size := int64(inputBuffer.Len())
 	outputBuffer := new(bytes.Buffer)
-	if x.Get("decrypt").Truthy() {
-		signex := x.Get("sign")
-		var signexBytes []byte
-		if signex.Truthy() {
-			if b, err := hex.DecodeString(signex.String()); err == nil {
-				signexBytes = b
-			} else {
-				fmt.Println("error:", err)
-				return
-			}
+	printFunc := geheim.NewDefaultPrintFunc(os.Stderr)
+	var err error
+	var sign []byte
+	if x.Get("archive").Truthy() {
+		if x.Get("decrypt").Truthy() {
+			sign, _, err = geheim.DecryptArchive(inputBuffer, outputBuffer, passBytes, printFunc)
+		} else {
+			sign, err = geheim.EncryptArchive(inputBuffer, outputBuffer, passBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
 		}
-		sign, err := geheim.DecryptVerify(inputBuffer, outputBuffer, []byte(pass.String()), signexBytes, geheim.NewDefaultPrintFunc(os.Stderr))
-		if err != nil {
-			fmt.Println("error:", err)
-			return
-		}
-		x.Set("sign", hex.EncodeToString(sign))
 	} else {
-		sign, err := geheim.Encrypt(inputBuffer, outputBuffer, []byte(pass.String()), geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), geheim.NewDefaultPrintFunc(os.Stderr))
-		if err != nil {
-			fmt.Println("error:", err)
-			return
+		if x.Get("decrypt").Truthy() {
+			var signexBytes []byte
+			if signex := x.Get("sign"); signex.Truthy() {
+				signexBytes, err = hex.DecodeString(signex.String())
+				check(err)
+			}
+			sign, err = geheim.DecryptVerify(inputBuffer, outputBuffer, passBytes, signexBytes, printFunc)
+		} else {
+			sign, err = geheim.Encrypt(inputBuffer, outputBuffer, passBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
 		}
-		x.Set("sign", hex.EncodeToString(sign))
 	}
+	x.Set("sign", hex.EncodeToString(sign))
+	check(err)
 	output := uint8Array.New(outputBuffer.Len())
 	js.CopyBytesToJS(output, outputBuffer.Bytes())
 	x.Set("output", output)

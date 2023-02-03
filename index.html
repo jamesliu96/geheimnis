@@ -12,6 +12,14 @@
   </head>
   <body style="font-family: sans-serif; user-select: none">
     <div>
+      <input
+        type="checkbox"
+        id="archive"
+        onchange="__x__.archive = this.checked; $sign.disabled = this.checked || !$decrypt.checked"
+      />
+      <label for="archive">Archive</label>
+    </div>
+    <div>
       <input type="file" id="file" style="display: none" />
       <button onclick="$file.click()">Choose File</button>
       <span id="fileinfo"></span>
@@ -20,7 +28,7 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.disabled = !this.checked"
+        onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.disabled = !this.checked || $archive.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
@@ -83,6 +91,8 @@
     </script>
     <script>
       window.addEventListener('load', () => {
+        window.$archive = document.querySelector('#archive');
+        window.$decrypt = document.querySelector('#decrypt');
         window.$console = document.querySelector('#console');
         window.$options = document.querySelector('#options');
         window.$sign = document.querySelector('#sign');
@@ -119,10 +129,8 @@
           a.href = URL.createObjectURL(blob);
           const filename = $file.files.item(0).name;
           a.download = __x__.decrypt
-            ? filename.endsWith(`.${__x__.sign}.ghm`)
-              ? filename.slice(0, filename.indexOf(`.${__x__.sign}.ghm`))
-              : `${filename}.bin`
-            : `${filename}.${__x__.sign}.ghm`;
+            ? `${filename}.bin`
+            : `${filename}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
           a.click();
           URL.revokeObjectURL(blob);
         };
@@ -154,22 +162,19 @@
           $downloadinfo.textContent = l ? `${formatSize(l)}` : '';
           if (s) $sign.value = s;
         };
-        $file.addEventListener('change', function () {
+        $file.addEventListener('change', async function () {
           if (this.files.length) {
             const file = this.files.item(0);
-            file
-              .arrayBuffer()
-              .then((b) => {
-                __x__.input = new Uint8Array(b);
-                $fileinfo.textContent = `${file.name} (${formatSize(
-                  file.size
-                )})`;
-              })
-              .catch((err) => {
-                delete __x__.input;
-                $fileinfo.textContent = '';
-                console.log('error:', err);
-              });
+            try {
+              __x__.input = new Uint8Array(await file.arrayBuffer());
+              const m = file.name.match(/\.([\da-f]+)\.gh[mz]$/);
+              if (m) $sign.value = m[1];
+              $fileinfo.textContent = `${file.name} (${formatSize(file.size)})`;
+            } catch (err) {
+              delete __x__.input;
+              $fileinfo.textContent = '';
+              console.log('error:', err);
+            }
           }
         });
         const go = new Go();

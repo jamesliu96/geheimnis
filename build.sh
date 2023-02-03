@@ -6,7 +6,7 @@ pkg=github.com/jamesliu96/geheimnis
 app=ghs
 tag=$(git describe --tags --always)
 rev=$(git rev-list -1 HEAD)
-ldflags="-X main.gitTag=$tag -X main.gitRev=$rev"
+ldflags="-X main.app=$app -X main.gitTag=$tag -X main.gitRev=$rev"
 out=$app.wasm
 echo "# $pkg $tag $rev" 1>&2
 
