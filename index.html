@@ -160,15 +160,23 @@
         const setDownloadable = (x, l, s) => {
           $download.disabled = !x;
           $downloadinfo.textContent = l ? `${formatSize(l)}` : '';
-          if (s) $sign.value = s;
+          if (s) {
+            $sign.value = s;
+            $sign.dispatchEvent(new Event('change'));
+          }
         };
         $file.addEventListener('change', async function () {
           if (this.files.length) {
             const file = this.files.item(0);
             try {
               __x__.input = new Uint8Array(await file.arrayBuffer());
-              const m = file.name.match(/\.([\da-f]+)\.gh[mz]$/);
-              if (m) $sign.value = m[1];
+              const m = file.name.match(/\.([\da-f]+)\.gh([mz])$/);
+              if (m) {
+                $sign.value = m[1];
+                $sign.dispatchEvent(new Event('change'));
+                $archive.checked = m[2] === 'z';
+                $archive.dispatchEvent(new Event('change'));
+              }
               $fileinfo.textContent = `${file.name} (${formatSize(file.size)})`;
             } catch (err) {
               delete __x__.input;
