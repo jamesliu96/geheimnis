@@ -110,17 +110,15 @@
         window.$sec = document.querySelector('#sec');
         window.run = async () => {
           setReady(false);
-          setDownloadable(false);
+          setDownloadable(null);
           await sleep();
           go.argv = ['ghs'];
           await go.run(inst);
           inst = await WebAssembly.instantiate(mod, go.importObject);
           setReady(true);
-          if (__x__.output)
-            setDownloadable(true, __x__.output.length, __x__.sign);
+          setDownloadable(__x__.output, __x__.sign);
         };
         window.download = () => {
-          if ($download.disabled) return;
           if (!__x__.output) return;
           const blob = new Blob([__x__.output], {
             type: 'application/octet-stream',
@@ -157,9 +155,9 @@
         const setReady = (x) => {
           $run.disabled = !x;
         };
-        const setDownloadable = (x, l, s) => {
-          $download.disabled = !x;
-          $downloadinfo.textContent = l ? `${formatSize(l)}` : '';
+        const setDownloadable = (o, s) => {
+          $download.disabled = !o;
+          $downloadinfo.textContent = o ? `${formatSize(o.length)}` : '';
           if (s) {
             $sign.value = s;
             $sign.dispatchEvent(new Event('change'));
@@ -170,8 +168,10 @@
             const file = this.files.item(0);
             try {
               __x__.input = new Uint8Array(await file.arrayBuffer());
-              const m = file.name.match(/\.([\da-f]+)\.gh([mz])$/);
+              const m = file.name.match(/\.([a-f\d]+)\.gh([mz])$/);
               if (m) {
+                $decrypt.checked = true;
+                $decrypt.dispatchEvent(new Event('change'));
                 $sign.value = m[1];
                 $sign.dispatchEvent(new Event('change'));
                 $archive.checked = m[2] === 'z';
@@ -187,7 +187,7 @@
         });
         const go = new Go();
         let mod, inst;
-        const setOptions = ($el, str, df, desc, key) => {
+        const setOptions = ($el, str, df, desc) => {
           const $o = document.createElement('option');
           $o.textContent = desc;
           $o.disabled = true;
@@ -200,7 +200,7 @@
             $el.appendChild($option);
           });
           $el.value = `${df}`;
-          __x__[key] = df;
+          $el.dispatchEvent(new Event('change'));
         };
         WebAssembly.instantiateStreaming(
           Promise.race([
@@ -219,42 +219,22 @@
               $cipher,
               __x__.CipherString,
               __x__.DefaultCipher,
-              __x__.CipherDesc,
-              'cipher'
+              __x__.CipherDesc
             );
             setOptions(
               $mode,
               __x__.ModeString,
               __x__.DefaultMode,
-              __x__.ModeDesc,
-              'mode'
+              __x__.ModeDesc
             );
-            setOptions(
-              $kdf,
-              __x__.KDFString,
-              __x__.DefaultKDF,
-              __x__.KDFDesc,
-              'kdf'
-            );
-            setOptions(
-              $mac,
-              __x__.MACString,
-              __x__.DefaultMAC,
-              __x__.MACDesc,
-              'mac'
-            );
-            setOptions(
-              $md,
-              __x__.MDString,
-              __x__.DefaultMD,
-              __x__.MDDesc,
-              'md'
-            );
+            setOptions($kdf, __x__.KDFString, __x__.DefaultKDF, __x__.KDFDesc);
+            setOptions($mac, __x__.MACString, __x__.DefaultMAC, __x__.MACDesc);
+            setOptions($md, __x__.MDString, __x__.DefaultMD, __x__.MDDesc);
             $sec.placeholder = __x__.SecDesc;
             $sec.min = `${__x__.MinSec}`;
             $sec.max = `${__x__.MaxSec}`;
             $sec.value = `${__x__.DefaultSec}`;
-            __x__.sec = __x__.DefaultSec;
+            $sec.dispatchEvent(new Event('change'));
           })
           .catch((err) => {
             console.log('error:', err);

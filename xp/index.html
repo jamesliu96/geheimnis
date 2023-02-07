@@ -68,7 +68,7 @@
           directive = 'x';
           await run();
         };
-        const regex = /^(?:(priv|pub)\s+)?([a-f\d]{64})$/;
+        const regex = /^(?:(priv|pub)\s+)?([a-f\d]+)$/;
         const _log = console.log;
         console.log = (...args) => {
           _log(...args);
