@@ -187,20 +187,15 @@
         });
         const go = new Go();
         let mod, inst;
-        const setOptions = ($el, str, df, desc) => {
-          const $o = document.createElement('option');
-          $o.textContent = desc;
-          $o.disabled = true;
-          $el.appendChild($o);
+        const setOptions = ($sel, str, df, desc) => {
+          const $hdr = new Option(desc);
+          $hdr.disabled = true;
+          $sel.appendChild($hdr);
           str.split(', ').forEach((d) => {
-            const [value, text] = d.split(':');
-            const $option = document.createElement('option');
-            $option.value = value;
-            $option.textContent = text;
-            $el.appendChild($option);
+            $sel.appendChild(new Option(...d.split(':').reverse()));
           });
-          $el.value = `${df}`;
-          $el.dispatchEvent(new Event('change'));
+          $sel.value = `${df}`;
+          $sel.dispatchEvent(new Event('change'));
         };
         WebAssembly.instantiateStreaming(
           Promise.race([
