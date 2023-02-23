@@ -61,7 +61,7 @@ func main() {
 	js.CopyBytesToGo(inputBytes, input)
 	inputBuffer := bytes.NewBuffer(inputBytes)
 	size := int64(inputBuffer.Len())
-	outputBuffer := new(bytes.Buffer)
+	outputBuffer := bytes.NewBuffer(nil)
 	printFunc := geheim.NewDefaultPrintFunc(os.Stderr)
 	var err error
 	var sign []byte
