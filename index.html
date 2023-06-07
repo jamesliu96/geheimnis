@@ -7,15 +7,15 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
     />
     <title>geheim</title>
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
   </head>
   <body style="font-family: sans-serif; user-select: none">
     <div>
       <input
         type="checkbox"
         id="archive"
-        onchange="__x__.archive = this.checked; $sign.disabled = this.checked || !$decrypt.checked"
+        onchange="__x__.archive = this.checked; $sign.readOnly = this.checked || !$decrypt.checked"
       />
       <label for="archive">Archive</label>
     </div>
@@ -28,7 +28,7 @@
       <input
         type="checkbox"
         id="decrypt"
-        onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.disabled = !this.checked || $archive.checked"
+        onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked"
       />
       <label for="decrypt">Decrypt</label>
       <span id="options">
@@ -58,7 +58,7 @@
         id="sign"
         onchange="__x__.sign = this.value"
         placeholder="signature hex"
-        disabled
+        readonly
         style="font-family: monospace"
       />
     </div>
@@ -68,7 +68,7 @@
       <span id="downloadinfo"></span>
     </div>
     <div>
-      <textarea id="console" disabled style="font-family: monospace"></textarea>
+      <textarea id="console" readonly style="font-family: monospace"></textarea>
     </div>
     <div>
       <button onclick="$console.value = ''">Clear</button>
@@ -81,11 +81,11 @@
     </div>
     <div>
       <small>
-        <a href="/xp/">xp</a>
+        <a href="xp">xp</a>
       </small>
     </div>
-    <script src="/wasm_exec.js"></script>
-    <script src="/version.js"></script>
+    <script src="wasm_exec.js"></script>
+    <script src="version.js"></script>
     <script>
       window.__x__ = {};
     </script>
@@ -199,7 +199,7 @@
         };
         WebAssembly.instantiateStreaming(
           Promise.race([
-            fetch('/ghs.wasm'),
+            fetch('ghs.wasm'),
             fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm'),
           ]),
           go.importObject

@@ -7,8 +7,8 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
     />
     <title>xp</title>
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="../favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
   </head>
   <body style="font-family: sans-serif; user-select: none">
     <div>
@@ -16,7 +16,7 @@
       <button id="x" onclick="x()" disabled>x</button>
       <input id="pub" placeholder="public" />
       <button id="p" onclick="p()" disabled>p</button>
-      <input id="shared" placeholder="shared" disabled />
+      <input id="shared" placeholder="shared" readonly />
     </div>
     <div>
       <small>
@@ -25,11 +25,11 @@
     </div>
     <div>
       <small>
-        <a id="link" href="/">geheim</a>
+        <a id="link" href="../">geheim</a>
       </small>
     </div>
-    <script src="/wasm_exec.js"></script>
-    <script src="/version.js"></script>
+    <script src="../wasm_exec.js"></script>
+    <script src="../version.js"></script>
     <script>
       window.addEventListener('load', () => {
         const $priv = document.querySelector('#priv');
@@ -40,7 +40,7 @@
         const $version = document.querySelector('#version');
         const $link = document.querySelector('#link');
         if (self !== top) {
-          $priv.disabled = true;
+          $priv.readOnly = true;
           $priv.type = $shared.type = 'password';
           $x.textContent = 'Share';
           $p.textContent = 'Generate';
@@ -121,7 +121,7 @@
         let mod, inst;
         WebAssembly.instantiateStreaming(
           Promise.race([
-            fetch('/xp/xp.wasm'),
+            fetch('xp.wasm'),
             fetch(
               'https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/xp/xp.wasm'
             ),
