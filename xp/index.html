@@ -11,7 +11,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
   </head>
   <body style="font-family: sans-serif; user-select: none">
-    <div>
+    <div id="cont">
       <input id="priv" placeholder="private" />
       <button id="x" onclick="x()" disabled>x</button>
       <input id="pub" placeholder="public" />
@@ -32,6 +32,7 @@
     <script src="../version.js"></script>
     <script>
       window.addEventListener('load', () => {
+        const $cont = document.querySelector('#cont');
         const $priv = document.querySelector('#priv');
         const $x = document.querySelector('#x');
         const $pub = document.querySelector('#pub');
@@ -40,6 +41,10 @@
         const $version = document.querySelector('#version');
         const $link = document.querySelector('#link');
         if (self !== top) {
+          document.body.style.margin = '0';
+          $cont.style.display = 'flex';
+          $cont.style.flexDirection = 'column';
+          $cont.style.gap = '4px';
           $priv.readOnly = true;
           $priv.type = $shared.type = 'password';
           $x.textContent = 'Share';
