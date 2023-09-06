@@ -31,7 +31,7 @@
 <script src="../wasm_exec.js"></script>
 <script src="../version.js"></script>
 <script>
-window.addEventListener('load', () => {
+addEventListener('load', () => {
   const $flex = document.querySelector('#flex');
   const $priv = document.querySelector('#priv');
   const $x = document.querySelector('#x');
@@ -80,15 +80,19 @@ window.addEventListener('load', () => {
       await navigator.clipboard.writeText(text);
     } catch {}
   };
-  const paste = async () => {
+  const paste = async (text) => {
     try {
-      const text = await navigator.clipboard.readText();
+      text = text ?? await navigator.clipboard.readText();
       const m = REGEX.exec(text.trim());
       if (m) return m[2];
     } catch {}
   };
   $pub.addEventListener('focus', async () => {
     const text = await paste();
+    if (text) $pub.value = text;
+  });
+  addEventListener('message', async ({ data }) => {
+    const text = await paste(data?.pub);
     if (text) $pub.value = text;
   });
   const { log } = console;
@@ -161,7 +165,6 @@ window.addEventListener('load', () => {
     });
 });
 </script>
-</body>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z1MRNCW1H0"></script>
 <script>
@@ -171,4 +174,5 @@ gtag('js', new Date());
 
 gtag('config', 'G-Z1MRNCW1H0');
 </script>
+</body>
 </html>
