@@ -80,19 +80,15 @@ addEventListener('load', () => {
       await navigator.clipboard.writeText(text);
     } catch {}
   };
-  const paste = async (text) => {
+  const paste = async () => {
     try {
-      text = text ?? await navigator.clipboard.readText();
+      const text = await navigator.clipboard.readText();
       const m = REGEX.exec(text.trim());
       if (m) return m[2];
     } catch {}
   };
   $pub.addEventListener('focus', async () => {
     const text = await paste();
-    if (text) $pub.value = text;
-  });
-  addEventListener('message', async ({ data }) => {
-    const text = await paste(data?.pub);
     if (text) $pub.value = text;
   });
   const { log } = console;
