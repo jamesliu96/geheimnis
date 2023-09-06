@@ -1,249 +1,249 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
+  />
+  <title>geheim</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body style="font-family: sans-serif; user-select: none">
+  <div>
+    <input
+      type="checkbox"
+      id="archive"
+      onchange="__x__.archive = this.checked; $sign.readOnly = this.checked || !$decrypt.checked"
     />
-    <title>geheim</title>
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-  </head>
-  <body style="font-family: sans-serif; user-select: none">
-    <div>
-      <input
-        type="checkbox"
-        id="archive"
-        onchange="__x__.archive = this.checked; $sign.readOnly = this.checked || !$decrypt.checked"
-      />
-      <label for="archive">Archive</label>
-    </div>
-    <div>
-      <input type="file" id="file" style="display: none" />
-      <button onclick="$file.click()">Choose File</button>
-      <span id="fileinfo"></span>
-    </div>
-    <div>
-      <input
-        type="checkbox"
-        id="decrypt"
-        onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked"
-      />
-      <label for="decrypt">Decrypt</label>
-      <span id="options">
-        <select
-          id="cipher"
-          onchange="__x__.cipher = +this.value; $mode.style.display = __x__.cipher === 1 ? '' : 'none'"
-        ></select>
-        <select id="mode" onchange="__x__.mode = +this.value"></select>
-        <select id="kdf" onchange="__x__.kdf = +this.value"></select>
-        <select id="mac" onchange="__x__.mac = +this.value"></select>
-        <select id="md" onchange="__x__.md = +this.value"></select>
-        <input type="number" id="sec" onchange="__x__.sec = +this.value" />
-      </span>
-    </div>
-    <div>
-      <input
-        type="password"
-        id="pass"
-        onchange="__x__.pass = this.value"
-        placeholder="passcode"
-        onfocus="this.type = 'text'"
-        onblur="this.type = 'password'"
-      />
-    </div>
-    <div>
-      <input
-        id="sign"
-        onchange="__x__.sign = this.value"
-        placeholder="signature hex"
-        readonly
-        style="font-family: monospace"
-      />
-    </div>
-    <div>
-      <button onclick="run()" id="run" disabled>Run</button>
-      <button onclick="download()" id="download" disabled>Download</button>
-      <span id="downloadinfo"></span>
-    </div>
-    <div>
-      <textarea id="console" readonly style="font-family: monospace"></textarea>
-    </div>
-    <div>
-      <button onclick="$console.value = ''">Clear</button>
-    </div>
-    <div>
-      <small>
-        <a href="https://github.com/jamesliu96/geheim">geheim</a>
-        <span id="version"></span>
-      </small>
-    </div>
-    <div>
-      <small>
-        <a href="xp">xp</a>
-      </small>
-    </div>
-    <script src="wasm_exec.js"></script>
-    <script src="version.js"></script>
-    <script>
-      window.__x__ = {};
-    </script>
-    <script>
-      window.addEventListener('load', () => {
-        window.$archive = document.querySelector('#archive');
-        window.$decrypt = document.querySelector('#decrypt');
-        window.$console = document.querySelector('#console');
-        window.$options = document.querySelector('#options');
-        window.$sign = document.querySelector('#sign');
-        window.$file = document.querySelector('#file');
-        window.$mode = document.querySelector('#mode');
-        window.$run = document.querySelector('#run');
-        window.$download = document.querySelector('#download');
-        window.$downloadinfo = document.querySelector('#downloadinfo');
-        window.$fileinfo = document.querySelector('#fileinfo');
-        window.$cipher = document.querySelector('#cipher');
-        window.$mode = document.querySelector('#mode');
-        window.$kdf = document.querySelector('#kdf');
-        window.$mac = document.querySelector('#mac');
-        window.$md = document.querySelector('#md');
-        window.$sec = document.querySelector('#sec');
-        window.run = async () => {
-          setReady(false);
-          setDownloadable(null);
-          await sleep();
-          go.argv = ['ghs'];
-          await go.run(inst);
-          inst = await WebAssembly.instantiate(mod, go.importObject);
-          setReady(true);
-          setDownloadable(__x__.output, __x__.sign);
-        };
-        window.download = () => {
-          if (!__x__.output) return;
-          const blob = new Blob([__x__.output], {
-            type: 'application/octet-stream',
-          });
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          const filename = $file.files.item(0).name;
-          a.download = __x__.decrypt
-            ? `${filename}.bin`
-            : `${filename}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
-          a.click();
-          URL.revokeObjectURL(blob);
-        };
-        const _log = console.log;
-        console.log = (...args) => {
-          _log(...args);
-          const argstr = args.join(' ');
-          $console.value += `${argstr}\n`;
-          if (['panic:', 'error:'].some((v) => argstr.includes(v)))
-            alert(argstr);
-        };
-        console.log('geheim', __version__);
-        document.querySelector('#version').textContent = __version__;
-        const sleep = (t = 0) =>
-          new Promise((r) => {
-            setTimeout(r, t);
-          });
-        const formatSize = (n) => {
-          if (n >= 1 << 30) return `${(n / (1 << 30)).toFixed(2)} GB`;
-          if (n >= 1 << 20) return `${(n / (1 << 20)).toFixed(2)} MB`;
-          if (n >= 1 << 10) return `${(n / (1 << 10)).toFixed(2)} KB`;
-          return `${n} bytes`;
-        };
-        const setReady = (x) => {
-          $run.disabled = !x;
-        };
-        const setDownloadable = (o, s) => {
-          $download.disabled = !o;
-          $downloadinfo.textContent = o ? `${formatSize(o.length)}` : '';
-          if (s) {
-            $sign.value = s;
-            $sign.dispatchEvent(new Event('change'));
-          }
-        };
-        $file.addEventListener('change', async function () {
-          if (this.files.length) {
-            const file = this.files.item(0);
-            try {
-              __x__.input = new Uint8Array(await file.arrayBuffer());
-              const m = file.name.match(/\.([a-f\d]+)\.gh([mz])$/);
-              if (m) {
-                $decrypt.checked = true;
-                $decrypt.dispatchEvent(new Event('change'));
-                $sign.value = m[1];
-                $sign.dispatchEvent(new Event('change'));
-                $archive.checked = m[2] === 'z';
-                $archive.dispatchEvent(new Event('change'));
-              }
-              $fileinfo.textContent = `${file.name} (${formatSize(file.size)})`;
-            } catch (err) {
-              delete __x__.input;
-              $fileinfo.textContent = '';
-              console.log('error:', err);
-            }
-          }
-        });
-        const go = new Go();
-        let mod, inst;
-        const setOptions = ($sel, str, df, desc) => {
-          const $hdr = new Option(desc);
-          $hdr.disabled = true;
-          $sel.appendChild($hdr);
-          str.split(', ').forEach((d) => {
-            $sel.appendChild(new Option(...d.split(':').reverse()));
-          });
-          $sel.value = `${df}`;
-          $sel.dispatchEvent(new Event('change'));
-        };
-        WebAssembly.instantiateStreaming(
-          Promise.race([
-            fetch('ghs.wasm'),
-            fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm'),
-          ]),
-          go.importObject
-        )
-          .then((result) => {
-            mod = result.module;
-            inst = result.instance;
-          })
-          .then(run)
-          .then(() => {
-            setOptions(
-              $cipher,
-              __x__.CipherString,
-              __x__.DefaultCipher,
-              __x__.CipherDesc
-            );
-            setOptions(
-              $mode,
-              __x__.ModeString,
-              __x__.DefaultMode,
-              __x__.ModeDesc
-            );
-            setOptions($kdf, __x__.KDFString, __x__.DefaultKDF, __x__.KDFDesc);
-            setOptions($mac, __x__.MACString, __x__.DefaultMAC, __x__.MACDesc);
-            setOptions($md, __x__.MDString, __x__.DefaultMD, __x__.MDDesc);
-            $sec.placeholder = __x__.SecDesc;
-            $sec.min = `${__x__.MinSec}`;
-            $sec.max = `${__x__.MaxSec}`;
-            $sec.value = `${__x__.DefaultSec}`;
-            $sec.dispatchEvent(new Event('change'));
-          })
-          .catch((err) => {
-            console.log('error:', err);
-          });
-      });
-    </script>
+    <label for="archive">Archive</label>
+  </div>
+  <div>
+    <input type="file" id="file" style="display: none" />
+    <button onclick="$file.click()">Choose File</button>
+    <span id="fileinfo"></span>
+  </div>
+  <div>
+    <input
+      type="checkbox"
+      id="decrypt"
+      onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked"
+    />
+    <label for="decrypt">Decrypt</label>
+    <span id="options">
+      <select
+        id="cipher"
+        onchange="__x__.cipher = +this.value; $mode.style.display = __x__.cipher === 1 ? '' : 'none'"
+      ></select>
+      <select id="mode" onchange="__x__.mode = +this.value"></select>
+      <select id="kdf" onchange="__x__.kdf = +this.value"></select>
+      <select id="mac" onchange="__x__.mac = +this.value"></select>
+      <select id="md" onchange="__x__.md = +this.value"></select>
+      <input type="number" id="sec" onchange="__x__.sec = +this.value" />
+    </span>
+  </div>
+  <div>
+    <input
+      type="password"
+      id="pass"
+      onchange="__x__.pass = this.value"
+      placeholder="passcode"
+      onfocus="this.type = 'text'"
+      onblur="this.type = 'password'"
+    />
+  </div>
+  <div>
+    <input
+      id="sign"
+      onchange="__x__.sign = this.value"
+      placeholder="signature hex"
+      readonly
+      style="font-family: monospace"
+    />
+  </div>
+  <div>
+    <button onclick="run()" id="run" disabled>Run</button>
+    <button onclick="download()" id="download" disabled>Download</button>
+    <span id="downloadinfo"></span>
+  </div>
+  <div>
+    <textarea id="console" readonly style="font-family: monospace"></textarea>
+  </div>
+  <div>
+    <button onclick="$console.value = ''">Clear</button>
+  </div>
+  <div>
+    <small>
+      <a href="https://github.com/jamesliu96/geheim">geheim</a>
+      <span id="version"></span>
+    </small>
+  </div>
+  <div>
+    <small>
+      <a href="xp">xp</a>
+    </small>
+  </div>
+<script src="wasm_exec.js"></script>
+<script src="version.js"></script>
+<script>
+window.__x__ = {};
+</script>
+<script>
+window.addEventListener('load', () => {
+  window.$archive = document.querySelector('#archive');
+  window.$decrypt = document.querySelector('#decrypt');
+  window.$console = document.querySelector('#console');
+  window.$options = document.querySelector('#options');
+  window.$sign = document.querySelector('#sign');
+  window.$file = document.querySelector('#file');
+  window.$mode = document.querySelector('#mode');
+  window.$run = document.querySelector('#run');
+  window.$download = document.querySelector('#download');
+  window.$downloadinfo = document.querySelector('#downloadinfo');
+  window.$fileinfo = document.querySelector('#fileinfo');
+  window.$cipher = document.querySelector('#cipher');
+  window.$mode = document.querySelector('#mode');
+  window.$kdf = document.querySelector('#kdf');
+  window.$mac = document.querySelector('#mac');
+  window.$md = document.querySelector('#md');
+  window.$sec = document.querySelector('#sec');
+  window.run = async () => {
+    setReady(false);
+    setDownloadable(null);
+    await sleep();
+    go.argv = ['ghs'];
+    await go.run(inst);
+    inst = await WebAssembly.instantiate(mod, go.importObject);
+    setReady(true);
+    setDownloadable(__x__.output, __x__.sign);
+  };
+  window.download = () => {
+    if (!__x__.output) return;
+    const blob = new Blob([__x__.output], {
+      type: 'application/octet-stream',
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const filename = $file.files.item(0).name;
+    a.download = __x__.decrypt
+      ? `${filename}.bin`
+      : `${filename}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
+    a.click();
+    URL.revokeObjectURL(blob);
+  };
+  const { log } = console;
+  console.log = (...args) => {
+    log(...args);
+    const argstr = args.join(' ');
+    $console.value += `${argstr}\n`;
+    if (['panic:', 'error:'].some((v) => argstr.includes(v)))
+      alert(argstr);
+  };
+  console.log('geheim', __version__);
+  document.querySelector('#version').textContent = __version__;
+  const sleep = (t = 0) =>
+    new Promise((r) => {
+      setTimeout(r, t);
+    });
+  const formatSize = (n) => {
+    if (n >= 1 << 30) return `${(n / (1 << 30)).toFixed(2)} GB`;
+    if (n >= 1 << 20) return `${(n / (1 << 20)).toFixed(2)} MB`;
+    if (n >= 1 << 10) return `${(n / (1 << 10)).toFixed(2)} KB`;
+    return `${n} bytes`;
+  };
+  const setReady = (x) => {
+    $run.disabled = !x;
+  };
+  const setDownloadable = (o, s) => {
+    $download.disabled = !o;
+    $downloadinfo.textContent = o ? `${formatSize(o.length)}` : '';
+    if (s) {
+      $sign.value = s;
+      $sign.dispatchEvent(new Event('change'));
+    }
+  };
+  $file.addEventListener('change', async function () {
+    if (this.files.length) {
+      const file = this.files.item(0);
+      try {
+        __x__.input = new Uint8Array(await file.arrayBuffer());
+        const m = file.name.match(/\.([a-f\d]+)\.gh([mz])$/);
+        if (m) {
+          $decrypt.checked = true;
+          $decrypt.dispatchEvent(new Event('change'));
+          $sign.value = m[1];
+          $sign.dispatchEvent(new Event('change'));
+          $archive.checked = m[2] === 'z';
+          $archive.dispatchEvent(new Event('change'));
+        }
+        $fileinfo.textContent = `${file.name} (${formatSize(file.size)})`;
+      } catch (err) {
+        delete __x__.input;
+        $fileinfo.textContent = '';
+        console.log('error:', err);
+      }
+    }
+  });
+  const go = new Go();
+  let mod, inst;
+  const setOptions = ($sel, str, df, desc) => {
+    const $hdr = new Option(desc);
+    $hdr.disabled = true;
+    $sel.appendChild($hdr);
+    str.split(', ').forEach((d) => {
+      $sel.appendChild(new Option(...d.split(':').reverse()));
+    });
+    $sel.value = `${df}`;
+    $sel.dispatchEvent(new Event('change'));
+  };
+  WebAssembly.instantiateStreaming(
+    Promise.race([
+      fetch('ghs.wasm'),
+      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm'),
+    ]),
+    go.importObject
+  )
+    .then((result) => {
+      mod = result.module;
+      inst = result.instance;
+    })
+    .then(run)
+    .then(() => {
+      setOptions(
+        $cipher,
+        __x__.CipherString,
+        __x__.DefaultCipher,
+        __x__.CipherDesc
+      );
+      setOptions(
+        $mode,
+        __x__.ModeString,
+        __x__.DefaultMode,
+        __x__.ModeDesc
+      );
+      setOptions($kdf, __x__.KDFString, __x__.DefaultKDF, __x__.KDFDesc);
+      setOptions($mac, __x__.MACString, __x__.DefaultMAC, __x__.MACDesc);
+      setOptions($md, __x__.MDString, __x__.DefaultMD, __x__.MDDesc);
+      $sec.placeholder = __x__.SecDesc;
+      $sec.min = `${__x__.MinSec}`;
+      $sec.max = `${__x__.MaxSec}`;
+      $sec.value = `${__x__.DefaultSec}`;
+      $sec.dispatchEvent(new Event('change'));
+    })
+    .catch((err) => {
+      console.log('error:', err);
+    });
+});
+</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z1MRNCW1H0"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
 
-  gtag('config', 'G-Z1MRNCW1H0');
+gtag('config', 'G-Z1MRNCW1H0');
 </script>
-  </body>
+</body>
 </html>
