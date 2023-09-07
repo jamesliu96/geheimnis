@@ -126,7 +126,9 @@ addEventListener('load', () => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = __x__.decrypt
-      ? REGEX.test(__x__.inputFile.name) ? __x__.inputFile.name.replace(REGEX, '') : `${__x__.inputFile.name}.bin`
+      ? REGEX.test(__x__.inputFile.name)
+        ? __x__.inputFile.name.replace(REGEX, '')
+        : `${__x__.inputFile.name}.bin`
       : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
     a.click();
     URL.revokeObjectURL(blob);
@@ -136,8 +138,7 @@ addEventListener('load', () => {
     log(...args);
     const argstr = args.join(' ');
     $console.value += `${argstr}\n`;
-    if (['panic:', 'error:'].some((v) => argstr.includes(v)))
-      alert(argstr);
+    if (['panic:', 'error:'].some((v) => argstr.includes(v))) alert(argstr);
   };
   console.log('geheim', __version__);
   document.querySelector('#version').textContent = __version__;
@@ -157,11 +158,17 @@ addEventListener('load', () => {
   };
   const setDownloadable = (o, s) => {
     $download.disabled = !o;
-    $downloadinfo.textContent = o ? `${
-      __x__.decrypt
-      ? REGEX.test(__x__.inputFile.name) ? __x__.inputFile.name.replace(REGEX, '') : `${__x__.inputFile.name}.bin`
-      : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`
-    } (${formatSize(o.length)})` : '';
+    $downloadinfo.textContent = o
+      ? `${
+          __x__.decrypt
+            ? REGEX.test(__x__.inputFile.name)
+              ? __x__.inputFile.name.replace(REGEX, '')
+              : `${__x__.inputFile.name}.bin`
+            : `${__x__.inputFile.name}.${__x__.sign}.gh${
+                __x__.archive ? 'z' : 'm'
+              }`
+        } (${formatSize(o.length)})`
+      : '';
     if (s) {
       $sign.value = s;
       $sign.dispatchEvent(new Event('change'));
@@ -209,7 +216,9 @@ addEventListener('load', () => {
   WebAssembly.instantiateStreaming(
     Promise.race([
       fetch('ghs.wasm'),
-      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm'),
+      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm').catch(
+        () => {}
+      ),
     ]),
     go.importObject
   )
@@ -225,12 +234,7 @@ addEventListener('load', () => {
         __x__.DefaultCipher,
         __x__.CipherDesc
       );
-      setOptions(
-        $mode,
-        __x__.ModeString,
-        __x__.DefaultMode,
-        __x__.ModeDesc
-      );
+      setOptions($mode, __x__.ModeString, __x__.DefaultMode, __x__.ModeDesc);
       setOptions($kdf, __x__.KDFString, __x__.DefaultKDF, __x__.KDFDesc);
       setOptions($mac, __x__.MACString, __x__.DefaultMAC, __x__.MACDesc);
       setOptions($md, __x__.MDString, __x__.DefaultMD, __x__.MDDesc);

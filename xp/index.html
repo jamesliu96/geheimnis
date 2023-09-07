@@ -16,7 +16,8 @@
     <button id="x" onclick="x()" disabled>x</button>
     <input id="pub" placeholder="public" />
     <button id="p" onclick="p()" disabled>p</button>
-    <input id="shared" placeholder="shared" readonly />
+    <input id="hex" placeholder="shared (hex)" readonly />
+    <input id="bin" placeholder="shared (bin)" readonly />
   </div>
   <div>
     <small>
@@ -37,7 +38,8 @@ addEventListener('load', () => {
   const $x = document.querySelector('#x');
   const $pub = document.querySelector('#pub');
   const $p = document.querySelector('#p');
-  const $shared = document.querySelector('#shared');
+  const $hex = document.querySelector('#hex');
+  const $bin = document.querySelector('#bin');
   const $version = document.querySelector('#version');
   const $link = document.querySelector('#link');
   if (self !== top) {
@@ -46,34 +48,35 @@ addEventListener('load', () => {
     $flex.style.flexDirection = 'column';
     $flex.style.gap = '4px';
     $priv.readOnly = true;
-    $priv.type = $shared.type = 'password';
+    $priv.type = $hex.type = $bin.type = 'password';
     $x.textContent = 'Share';
     $p.textContent = 'Generate';
-    $priv.style.fontFamily = $x.style.fontFamily = $pub.style.fontFamily = $p.style.fontFamily = $shared.style.fontFamily = 'source-code-pro, Menlo, Monaco, Consolas, \'Courier New\', monospace';
+    $priv.style.fontFamily =
+      $x.style.fontFamily =
+      $pub.style.fontFamily =
+      $p.style.fontFamily =
+      $hex.style.fontFamily =
+      $bin.style.fontFamily =
+        "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace";
     $version.style.display = $link.style.display = 'none';
   }
-  let directive = '';
-  const run = async () => {
+  const run = async (dir) => {
     setReady(false);
     await sleep();
-    go.argv = [
-      'xp',
-      directive,
-      $priv.value,
-      ...($pub.value ? [$pub.value] : []),
-    ];
+    go.argv = ['xp', dir, $priv.value, ...($pub.value ? [$pub.value] : [])];
     await go.run(inst);
     inst = await WebAssembly.instantiate(mod, go.importObject);
     setReady(true);
   };
-  window.p = async () => {
-    directive = 'p';
-    await run();
+  const hex_to_ascii = (hex) => {
+    if (!hex.length || hex.length % 2) return '';
+    let ascii = '';
+    for (let idx = 0; idx < hex.length; idx += 2)
+      ascii += String.fromCharCode(parseInt(hex.slice(idx, idx + 2), 16));
+    return ascii;
   };
-  window.x = async () => {
-    directive = 'x';
-    await run();
-  };
+  window.p = () => run('p');
+  window.x = () => run('x');
   const REGEX = /^(?:(priv|pub)\s+)?([a-f\d]+)$/i;
   const copy = async (text) => {
     try {
@@ -100,35 +103,31 @@ addEventListener('load', () => {
       alert(argstr);
       return;
     }
-    if (directive === 'p') {
-      const lines = argstr.split('\n');
-      let ok = false;
-      for (const line of lines) {
-        const m = REGEX.exec(line.trim());
-        if (m) {
-          switch (m[1]) {
-            case 'priv': {
-              $priv.value = m[2];
-              ok = true;
-              break;
-            }
-            case 'pub': {
-              $pub.value = m[2];
-              ok = true;
-              break;
-            }
+    const lines = argstr.split('\n');
+    for (const line of lines) {
+      const m = REGEX.exec(line.trim());
+      if (m) {
+        switch (m[1]) {
+          case 'priv': {
+            $priv.value = m[2];
+            $hex.value = $bin.value = '';
+            break;
+          }
+          case 'pub': {
+            const pub = m[2];
+            $pub.value = pub;
+            $hex.value = $bin.value = '';
+            copy(pub);
+            break;
+          }
+          default: {
+            const hex = m[2];
+            const bin = hex_to_ascii(hex);
+            $hex.value = hex;
+            $bin.value = bin;
+            parent.postMessage({ hex, bin }, '*');
           }
         }
-      }
-      if (ok) {
-        $shared.value = '';
-        copy($pub.value);
-      }
-    } else if (directive === 'x') {
-      const m = REGEX.exec(argstr);
-      if (m && !m[1]) {
-        $shared.value = m[2];
-        parent.postMessage({ shared: m[2] }, '*');
       }
     }
   };
@@ -148,7 +147,7 @@ addEventListener('load', () => {
       fetch('xp.wasm'),
       fetch(
         'https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/xp/xp.wasm'
-      ),
+      ).catch(() => {}),
     ]),
     go.importObject
   )
