@@ -125,10 +125,9 @@ addEventListener('load', () => {
     });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    const filename = $file.files.item(0).name;
     a.download = __x__.decrypt
-      ? `${filename}.bin`
-      : `${filename}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
+      ? REGEX.test(__x__.inputFile.name) ? __x__.inputFile.name.replace(REGEX, '') : `${__x__.inputFile.name}.bin`
+      : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
     a.click();
     URL.revokeObjectURL(blob);
   };
@@ -152,12 +151,17 @@ addEventListener('load', () => {
     if (n >= 1 << 10) return `${(n / (1 << 10)).toFixed(2)} KB`;
     return `${n} bytes`;
   };
+  const REGEX = /(?:\.([a-f\d]+))?\.gh([mz])$/i;
   const setReady = (x) => {
     $run.disabled = !x;
   };
   const setDownloadable = (o, s) => {
     $download.disabled = !o;
-    $downloadinfo.textContent = o ? `${formatSize(o.length)}` : '';
+    $downloadinfo.textContent = o ? `${
+      __x__.decrypt
+      ? REGEX.test(__x__.inputFile.name) ? __x__.inputFile.name.replace(REGEX, '') : `${__x__.inputFile.name}.bin`
+      : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`
+    } (${formatSize(o.length)})` : '';
     if (s) {
       $sign.value = s;
       $sign.dispatchEvent(new Event('change'));
@@ -168,20 +172,25 @@ addEventListener('load', () => {
       const file = this.files.item(0);
       try {
         __x__.input = new Uint8Array(await file.arrayBuffer());
-        const m = file.name.match(/\.([a-f\d]+)\.gh([mz])$/);
+        const m = file.name.match(REGEX);
         if (m) {
           $decrypt.checked = true;
           $decrypt.dispatchEvent(new Event('change'));
-          $sign.value = m[1];
-          $sign.dispatchEvent(new Event('change'));
-          $archive.checked = m[2] === 'z';
+          if (m[1]) {
+            $sign.value = m[1];
+            $sign.dispatchEvent(new Event('change'));
+          }
+          $archive.checked = m[2].toLowerCase() === 'z';
           $archive.dispatchEvent(new Event('change'));
         }
         $fileinfo.textContent = `${file.name} (${formatSize(file.size)})`;
+        __x__.inputFile = file;
+        setDownloadable(null);
       } catch (err) {
+        console.log('error:', err);
         delete __x__.input;
         $fileinfo.textContent = '';
-        console.log('error:', err);
+        delete __x__.inputFile;
       }
     }
   });
