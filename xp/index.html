@@ -82,14 +82,15 @@ addEventListener('load', () => {
   };
   const paste = async () => {
     try {
-      const text = await navigator.clipboard.readText();
-      const m = REGEX.exec(text.trim());
-      if (m) return m[2];
+      return await navigator.clipboard.readText();
     } catch {}
   };
   $pub.addEventListener('focus', async () => {
     const text = await paste();
-    if (text) $pub.value = text;
+    if (text) {
+      const m = REGEX.exec(text.trim());
+      if (m) $pub.value = m[2];
+    }
   });
   const { log } = console;
   console.log = (...args) => {
