@@ -2,21 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
   <title>geheim</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body style="font-family: sans-serif; user-select: none">
   <div>
-    <input
-      type="checkbox"
-      id="archive"
-      onchange="__x__.archive = this.checked; $sign.readOnly = this.checked || !$decrypt.checked"
-    />
+    <input type="checkbox" id="archive" onchange="__x__.archive = this.checked; $sign.readOnly = this.checked || !$decrypt.checked" />
     <label for="archive">Archive</label>
   </div>
   <div>
@@ -25,17 +18,10 @@
     <span id="fileinfo"></span>
   </div>
   <div>
-    <input
-      type="checkbox"
-      id="decrypt"
-      onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked"
-    />
+    <input type="checkbox" id="decrypt" onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked" />
     <label for="decrypt">Decrypt</label>
     <span id="options">
-      <select
-        id="cipher"
-        onchange="__x__.cipher = +this.value; $mode.style.display = __x__.cipher === 1 ? '' : 'none'"
-      ></select>
+      <select id="cipher" onchange="__x__.cipher = +this.value; $mode.style.display = __x__.cipher === 1 ? '' : 'none'"></select>
       <select id="mode" onchange="__x__.mode = +this.value"></select>
       <select id="kdf" onchange="__x__.kdf = +this.value"></select>
       <select id="mac" onchange="__x__.mac = +this.value"></select>
@@ -44,23 +30,10 @@
     </span>
   </div>
   <div>
-    <input
-      type="password"
-      id="pass"
-      onchange="__x__.pass = this.value"
-      placeholder="passcode"
-      onfocus="this.type = 'text'"
-      onblur="this.type = 'password'"
-    />
+    <input type="password" id="pass" onchange="__x__.pass = this.value" placeholder="passcode" onfocus="this.type = 'text'" onblur="this.type = 'password'" />
   </div>
   <div>
-    <input
-      id="sign"
-      onchange="__x__.sign = this.value"
-      placeholder="signature hex"
-      readonly
-      style="font-family: monospace"
-    />
+    <input id="sign" onchange="__x__.sign = this.value" placeholder="signature hex" readonly style="font-family: monospace" />
   </div>
   <div>
     <button onclick="run()" id="run" disabled>Run</button>
@@ -159,15 +132,12 @@ addEventListener('load', () => {
   const setDownloadable = (o, s) => {
     $download.disabled = !o;
     $downloadinfo.textContent = o
-      ? `${
-          __x__.decrypt
-            ? REGEX.test(__x__.inputFile.name)
-              ? __x__.inputFile.name.replace(REGEX, '')
-              : `${__x__.inputFile.name}.bin`
-            : `${__x__.inputFile.name}.${__x__.sign}.gh${
-                __x__.archive ? 'z' : 'm'
-              }`
-        } (${formatSize(o.length)})`
+      ? `${__x__.decrypt
+        ? REGEX.test(__x__.inputFile.name)
+          ? __x__.inputFile.name.replace(REGEX, '')
+          : `${__x__.inputFile.name}.bin`
+        : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`
+      } (${formatSize(o.length)})`
       : '';
     if (s) {
       $sign.value = s;
@@ -216,9 +186,7 @@ addEventListener('load', () => {
   WebAssembly.instantiateStreaming(
     Promise.race([
       fetch('ghs.wasm'),
-      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis/ghs.wasm').catch(
-        () => {}
-      ),
+      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis@master/ghs.wasm'),
     ]),
     go.importObject
   )
@@ -253,7 +221,7 @@ addEventListener('load', () => {
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z1MRNCW1H0"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
+function gtag() { dataLayer.push(arguments); }
 gtag('js', new Date());
 
 gtag('config', 'G-Z1MRNCW1H0');
