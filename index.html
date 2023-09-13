@@ -89,7 +89,7 @@ addEventListener('load', () => {
     await go.run(inst);
     inst = await WebAssembly.instantiate(mod, go.importObject);
     setReady(true);
-    setDownloadable(__x__.output, __x__.sign);
+    setDownloadable(__x__.output);
   };
   window.download = () => {
     if (!__x__.output) return;
@@ -102,7 +102,7 @@ addEventListener('load', () => {
       ? REGEX.test(__x__.inputFile.name)
         ? __x__.inputFile.name.replace(REGEX, '')
         : `${__x__.inputFile.name}.bin`
-      : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`;
+      : `${__x__.inputFile.name}${__x__.archive ? '' : `.${__x__.sign}`}.gh${__x__.archive ? 'z' : 'm'}`;
     a.click();
     URL.revokeObjectURL(blob);
   };
@@ -129,18 +129,18 @@ addEventListener('load', () => {
   const setReady = (x) => {
     $run.disabled = !x;
   };
-  const setDownloadable = (o, s) => {
+  const setDownloadable = (o) => {
     $download.disabled = !o;
     $downloadinfo.textContent = o
       ? `${__x__.decrypt
         ? REGEX.test(__x__.inputFile.name)
           ? __x__.inputFile.name.replace(REGEX, '')
           : `${__x__.inputFile.name}.bin`
-        : `${__x__.inputFile.name}.${__x__.sign}.gh${__x__.archive ? 'z' : 'm'}`
+        : `${__x__.inputFile.name}${__x__.archive ? '' : `.${__x__.sign}`}.gh${__x__.archive ? 'z' : 'm'}`
       } (${formatSize(o.length)})`
       : '';
-    if (s) {
-      $sign.value = s;
+    if (o) {
+      $sign.value = __x__.sign;
       $sign.dispatchEvent(new Event('change'));
     }
   };
