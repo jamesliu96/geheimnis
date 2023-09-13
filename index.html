@@ -186,7 +186,7 @@ addEventListener('load', () => {
   WebAssembly.instantiateStreaming(
     Promise.race([
       fetch('ghs.wasm'),
-      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis@master/ghs.wasm'),
+      fetch('https://cdn.jsdelivr.net/gh/jamesliu96/geheimnis@master/ghs.wasm').catch(() => new Promise(() => {})),
     ]),
     go.importObject
   )
