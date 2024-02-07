@@ -42,7 +42,7 @@ addEventListener('load', () => {
   if (self !== top) {
     document.body.style.margin = '0';
     $flex.style.display = 'flex';
-    $flex.style.flexDirection = 'column';
+    $flex.style.flexDirection = 'column-reverse';
     $flex.style.gap = '4px';
     $priv.readOnly = true;
     $priv.type = $hex.type = $bin.type = 'password';
@@ -55,6 +55,7 @@ addEventListener('load', () => {
       $hex.style.fontFamily =
       $bin.style.fontFamily =
         "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace";
+    $hex.style.display = $bin.style.display = 'none';
     $version.style.display = $link.style.display = 'none';
   }
   const run = async (dir) => {
