@@ -52,11 +52,11 @@ func main() {
 	if !input.Truthy() {
 		check(errors.New("no input"))
 	}
-	pass := x.Get("pass")
-	if !pass.Truthy() {
-		check(errors.New("no passcode"))
+	key := x.Get("key")
+	if !key.Truthy() {
+		check(errors.New("no key"))
 	}
-	passBytes := []byte(pass.String())
+	keyBytes := []byte(key.String())
 	inputBytes := make([]byte, input.Length())
 	js.CopyBytesToGo(inputBytes, input)
 	inputBuffer := bytes.NewBuffer(inputBytes)
@@ -67,9 +67,9 @@ func main() {
 	var sign []byte
 	if x.Get("archive").Truthy() {
 		if x.Get("decrypt").Truthy() {
-			sign, _, err = geheim.DecryptArchive(inputBuffer, outputBuffer, passBytes, printFunc)
+			sign, _, err = geheim.DecryptArchive(inputBuffer, outputBuffer, keyBytes, printFunc)
 		} else {
-			sign, err = geheim.EncryptArchive(inputBuffer, outputBuffer, passBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
+			sign, err = geheim.EncryptArchive(inputBuffer, outputBuffer, keyBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
 		}
 	} else {
 		if x.Get("decrypt").Truthy() {
@@ -78,9 +78,9 @@ func main() {
 				signexBytes, err = hex.DecodeString(signex.String())
 				check(err)
 			}
-			sign, err = geheim.DecryptVerify(inputBuffer, outputBuffer, passBytes, signexBytes, printFunc)
+			sign, err = geheim.DecryptVerify(inputBuffer, outputBuffer, keyBytes, signexBytes, printFunc)
 		} else {
-			sign, err = geheim.Encrypt(inputBuffer, outputBuffer, passBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
+			sign, err = geheim.Encrypt(inputBuffer, outputBuffer, keyBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.Mode(x.Get("mode").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MAC(x.Get("mac").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
 		}
 	}
 	x.Set("sign", hex.EncodeToString(sign))

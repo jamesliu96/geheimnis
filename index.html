@@ -23,14 +23,14 @@
     <span id="options">
       <select id="cipher" onchange="__x__.cipher = +this.value; $mode.style.display = __x__.cipher === 1 ? '' : 'none'"></select>
       <select id="mode" onchange="__x__.mode = +this.value"></select>
-      <select id="kdf" onchange="__x__.kdf = +this.value"></select>
+      <select id="kdf" onchange="__x__.kdf = +this.value; $sec.style.display = __x__.kdf === 1 ? 'none' : ''"></select>
       <select id="mac" onchange="__x__.mac = +this.value"></select>
       <select id="md" onchange="__x__.md = +this.value"></select>
       <input type="number" id="sec" onchange="__x__.sec = +this.value" />
     </span>
   </div>
   <div>
-    <input type="password" id="pass" onchange="__x__.pass = this.value" placeholder="passcode" onfocus="this.type = 'text'" onblur="this.type = 'password'" />
+    <input type="password" id="key" onchange="__x__.key = this.value" placeholder="key" onfocus="this.type = 'text'" onblur="this.type = 'password'" />
   </div>
   <div>
     <input id="sign" onchange="__x__.sign = this.value" placeholder="signature hex" readonly style="font-family: monospace" />
