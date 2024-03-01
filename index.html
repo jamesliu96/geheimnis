@@ -30,7 +30,10 @@
     </span>
   </div>
   <div>
-    <input type="password" id="key" onchange="__x__.key = this.value" placeholder="key" onfocus="this.type = 'text'" onblur="this.type = 'password'" />
+    <iframe title="xp" src="/xp/" allow="clipboard-read *; clipboard-write *" style="border: 0; width: 173px; height: 99px"></iframe>
+  </div>
+  <div>
+    <input type="password" id="key" onchange="__x__.key = this.value" placeholder="key" onfocus="this.type = 'text'" onblur="this.type = 'password'" style="font-family: monospace" />
   </div>
   <div>
     <input id="sign" onchange="__x__.sign = this.value" placeholder="signature hex" readonly style="font-family: monospace" />
@@ -68,6 +71,7 @@ addEventListener('load', () => {
   window.$decrypt = document.querySelector('#decrypt');
   window.$console = document.querySelector('#console');
   window.$options = document.querySelector('#options');
+  window.$key = document.querySelector('#key');
   window.$sign = document.querySelector('#sign');
   window.$file = document.querySelector('#file');
   window.$mode = document.querySelector('#mode');
@@ -169,6 +173,14 @@ addEventListener('load', () => {
         $fileinfo.textContent = '';
         delete __x__.inputFile;
       }
+    }
+  });
+  addEventListener('message', ({ data }) => {
+    if (typeof data?.bin === 'string' && data.bin) {
+      $key.value = data.bin;
+      $key.dispatchEvent(new Event('change'));
+      $kdf.value = '1';
+      $kdf.dispatchEvent(new Event('change'));
     }
   });
   const go = new Go();
