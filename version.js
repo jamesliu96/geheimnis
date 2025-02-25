@@ -1,1 +1,1 @@
-window.__version__ = 'v1.29.13';
+window.__version__ = 'v1.30.0';
