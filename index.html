@@ -20,10 +20,8 @@
     <input type="checkbox" id="decrypt" onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked" />
     <label for="decrypt">Decrypt</label>
     <span id="options">
-      <select id="cipher" onchange="__x__.cipher = +this.value; $mode.style.display = __x__.cipher === 1 ? '' : 'none'"></select>
-      <select id="mode" onchange="__x__.mode = +this.value"></select>
+      <select id="cipher" onchange="__x__.cipher = +this.value"></select>
       <select id="kdf" onchange="__x__.kdf = +this.value; $sec.style.display = __x__.kdf === 1 ? 'none' : ''"></select>
-      <select id="mac" onchange="__x__.mac = +this.value"></select>
       <select id="md" onchange="__x__.md = +this.value"></select>
       <input type="number" id="sec" onchange="__x__.sec = +this.value" />
     </span>
@@ -73,15 +71,12 @@ addEventListener('load', () => {
   window.$key = document.querySelector('#key');
   window.$sign = document.querySelector('#sign');
   window.$file = document.querySelector('#file');
-  window.$mode = document.querySelector('#mode');
   window.$run = document.querySelector('#run');
   window.$download = document.querySelector('#download');
   window.$downloadinfo = document.querySelector('#downloadinfo');
   window.$fileinfo = document.querySelector('#fileinfo');
   window.$cipher = document.querySelector('#cipher');
-  window.$mode = document.querySelector('#mode');
   window.$kdf = document.querySelector('#kdf');
-  window.$mac = document.querySelector('#mac');
   window.$md = document.querySelector('#md');
   window.$sec = document.querySelector('#sec');
   window.run = async () => {
@@ -207,15 +202,8 @@ addEventListener('load', () => {
     })
     .then(run)
     .then(() => {
-      setOptions(
-        $cipher,
-        __x__.CipherString,
-        __x__.DefaultCipher,
-        __x__.CipherDesc
-      );
-      setOptions($mode, __x__.ModeString, __x__.DefaultMode, __x__.ModeDesc);
+      setOptions($cipher, __x__.CipherString, __x__.DefaultCipher,  __x__.CipherDesc);
       setOptions($kdf, __x__.KDFString, __x__.DefaultKDF, __x__.KDFDesc);
-      setOptions($mac, __x__.MACString, __x__.DefaultMAC, __x__.MACDesc);
       setOptions($md, __x__.MDString, __x__.DefaultMD, __x__.MDDesc);
       $sec.placeholder = __x__.SecDesc;
       $sec.min = `${__x__.MinSec}`;
