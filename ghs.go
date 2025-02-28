@@ -37,7 +37,7 @@ func main() {
 		x.Set("MDDesc", geheim.MDDesc)
 		x.Set("MinSec", geheim.MinSec)
 		x.Set("MaxSec", geheim.MaxSec)
-		x.Set("DefaultSec", int(geheim.DefaultSec))
+		x.Set("DefaultSec", int(geheim.DefaultSec-2))
 		x.Set("SecDesc", geheim.SecDesc)
 		x.Set("__init__", true)
 		return
