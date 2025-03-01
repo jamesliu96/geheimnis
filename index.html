@@ -21,9 +21,10 @@
     <label for="decrypt">Decrypt</label>
     <span id="options">
       <select id="cipher" onchange="__x__.cipher = +this.value"></select>
+      <select id="hash" onchange="__x__.hash = +this.value"></select>
       <select id="kdf" onchange="__x__.kdf = +this.value; $sec.style.display = __x__.kdf === 1 ? 'none' : ''"></select>
-      <select id="md" onchange="__x__.md = +this.value"></select>
-      <input type="number" id="sec" onchange="__x__.sec = +this.value" />
+      <!-- <input type="number" id="sec" onchange="__x__.sec = +this.value" /> -->
+      <select id="sec" onchange="__x__.sec = +this.value"></select>
     </span>
   </div>
   <div>
@@ -65,20 +66,20 @@ window.__x__ = {};
 <script>
 addEventListener('load', () => {
   window.$archive = document.querySelector('#archive');
+  window.$file = document.querySelector('#file');
+  window.$fileinfo = document.querySelector('#fileinfo');
   window.$decrypt = document.querySelector('#decrypt');
-  window.$console = document.querySelector('#console');
   window.$options = document.querySelector('#options');
+  window.$cipher = document.querySelector('#cipher');
+  window.$hash = document.querySelector('#hash');
+  window.$kdf = document.querySelector('#kdf');
+  window.$sec = document.querySelector('#sec');
   window.$key = document.querySelector('#key');
   window.$sign = document.querySelector('#sign');
-  window.$file = document.querySelector('#file');
   window.$run = document.querySelector('#run');
   window.$download = document.querySelector('#download');
   window.$downloadinfo = document.querySelector('#downloadinfo');
-  window.$fileinfo = document.querySelector('#fileinfo');
-  window.$cipher = document.querySelector('#cipher');
-  window.$kdf = document.querySelector('#kdf');
-  window.$md = document.querySelector('#md');
-  window.$sec = document.querySelector('#sec');
+  window.$console = document.querySelector('#console');
   window.run = async () => {
     setReady(false);
     setDownloadable(null);
@@ -180,6 +181,7 @@ addEventListener('load', () => {
   const go = new Go();
   let mod, inst;
   const setOptions = ($sel, str, df, desc) => {
+    $sel.title = desc;
     const $hdr = new Option(desc);
     $hdr.disabled = true;
     $sel.appendChild($hdr);
@@ -203,13 +205,15 @@ addEventListener('load', () => {
     .then(run)
     .then(() => {
       setOptions($cipher, __x__.CipherString, __x__.DefaultCipher,  __x__.CipherDesc);
+      setOptions($hash, __x__.HashString, __x__.DefaultHash, __x__.HashDesc);
       setOptions($kdf, __x__.KDFString, __x__.DefaultKDF, __x__.KDFDesc);
-      setOptions($md, __x__.MDString, __x__.DefaultMD, __x__.MDDesc);
-      $sec.placeholder = __x__.SecDesc;
-      $sec.min = `${__x__.MinSec}`;
-      $sec.max = `${__x__.MaxSec}`;
-      $sec.value = `${__x__.DefaultSec}`;
-      $sec.dispatchEvent(new Event('change'));
+      // $sec.title = __x__.SecDesc;
+      // $sec.placeholder = __x__.SecDesc;
+      // $sec.min = `${__x__.MinSec}`;
+      // $sec.max = `${__x__.MaxSec}`;
+      // $sec.value = `${__x__.DefaultSec}`;
+      // $sec.dispatchEvent(new Event('change'));
+      setOptions($sec, __x__.SecString, __x__.DefaultSec, __x__.SecDesc);
     })
     .catch((err) => {
       console.log('error:', err);

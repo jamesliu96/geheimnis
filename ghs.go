@@ -29,15 +29,16 @@ func main() {
 		x.Set("CipherString", geheim.CipherString)
 		x.Set("DefaultCipher", int(geheim.DefaultCipher))
 		x.Set("CipherDesc", geheim.CipherDesc)
+		x.Set("HashString", geheim.HashString)
+		x.Set("DefaultHash", int(geheim.DefaultHash))
+		x.Set("HashDesc", geheim.HashDesc)
 		x.Set("KDFString", geheim.KDFString)
 		x.Set("DefaultKDF", int(geheim.DefaultKDF))
 		x.Set("KDFDesc", geheim.KDFDesc)
-		x.Set("MDString", geheim.MDString)
-		x.Set("DefaultMD", int(geheim.DefaultMD))
-		x.Set("MDDesc", geheim.MDDesc)
 		x.Set("MinSec", geheim.MinSec)
 		x.Set("MaxSec", geheim.MaxSec)
-		x.Set("DefaultSec", int(geheim.DefaultSec-2))
+		x.Set("DefaultSec", int(geheim.DefaultSec))
+		x.Set("SecString", geheim.SecString)
 		x.Set("SecDesc", geheim.SecDesc)
 		x.Set("__init__", true)
 		return
@@ -63,7 +64,7 @@ func main() {
 		if x.Get("decrypt").Truthy() {
 			sign, _, err = geheim.DecryptArchive(inputBuffer, outputBuffer, keyBytes, printFunc)
 		} else {
-			sign, err = geheim.EncryptArchive(inputBuffer, outputBuffer, keyBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
+			sign, err = geheim.EncryptArchive(inputBuffer, outputBuffer, keyBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.Hash(x.Get("hash").Int()), geheim.KDF(x.Get("kdf").Int()), x.Get("sec").Int(), printFunc)
 		}
 	} else {
 		if x.Get("decrypt").Truthy() {
@@ -74,7 +75,7 @@ func main() {
 			}
 			sign, err = geheim.DecryptVerify(inputBuffer, outputBuffer, keyBytes, signexBytes, printFunc)
 		} else {
-			sign, err = geheim.Encrypt(inputBuffer, outputBuffer, keyBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.KDF(x.Get("kdf").Int()), geheim.MD(x.Get("md").Int()), x.Get("sec").Int(), printFunc)
+			sign, err = geheim.Encrypt(inputBuffer, outputBuffer, keyBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.Hash(x.Get("hash").Int()), geheim.KDF(x.Get("kdf").Int()), x.Get("sec").Int(), printFunc)
 		}
 	}
 	x.Set("sign", hex.EncodeToString(sign))
