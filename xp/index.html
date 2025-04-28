@@ -8,19 +8,17 @@
   <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 </head>
 <body style="font-family: sans-serif; user-select: none">
-  <div id="xp">
-    <input id="priv" placeholder="private" />
+  <div id="flex">
+    <input id="priv" placeholder="private" style="font-family: monospace" />
     <button id="x" onclick="x()" disabled>x</button>
-    <input id="pub" placeholder="public" />
+    <input id="pub" placeholder="public" style="font-family: monospace" />
     <button id="p" onclick="p()" disabled>p</button>
-    <input id="hex" placeholder="hex" />
-    <input id="bin" placeholder="bin" />
-  </div>
-  <div id="sv">
     <button id="g" onclick="g()" disabled>g</button>
-    <input id="msg" placeholder="message" />
+    <input id="msg" placeholder="message" style="font-family: monospace" />
     <button id="s" onclick="s()" disabled>s</button>
     <button id="v" onclick="v()" disabled>v</button>
+    <input id="hex" placeholder="hex" style="font-family: monospace" />
+    <input id="bin" placeholder="bin" style="font-family: monospace" />
   </div>
   <div>
     <small>
@@ -36,37 +34,38 @@
 <script src="../version.js"></script>
 <script>
 addEventListener('load', () => {
-  const $xp = document.querySelector('#xp');
+  const $flex = document.querySelector('#flex');
   const $priv = document.querySelector('#priv');
   const $x = document.querySelector('#x');
   const $pub = document.querySelector('#pub');
   const $p = document.querySelector('#p');
-  const $hex = document.querySelector('#hex');
-  const $bin = document.querySelector('#bin');
-  const $sv = document.querySelector('#sv');
   const $g = document.querySelector('#g');
   const $msg = document.querySelector('#msg');
   const $s = document.querySelector('#s');
   const $v = document.querySelector('#v');
+  const $hex = document.querySelector('#hex');
+  const $bin = document.querySelector('#bin');
   const $version = document.querySelector('#version');
   const $link = document.querySelector('#link');
   if (self !== top) {
     document.body.style.margin = '0';
-    $xp.style.display = 'flex';
-    $xp.style.flexDirection = 'column-reverse';
-    $xp.style.gap = '4px';
+    $flex.style.display = 'flex';
+    $flex.style.flexDirection = 'column-reverse';
+    $flex.style.gap = '4px';
     $priv.readOnly = true;
-    $priv.type = $hex.type = 'password';
+    $priv.type = 'password';
     $x.textContent = 'Share';
-    $p.textContent = 'Generate';
+    $p.textContent = 'Generate DH';
+    $g.textContent = 'Generate DSA';
+    $s.textContent = 'Sign';
+    $v.textContent = 'Verify';
     $priv.style.fontFamily =
-      $x.style.fontFamily =
       $pub.style.fontFamily =
-      $p.style.fontFamily =
+      $msg.style.fontFamily =
       $hex.style.fontFamily =
+      $bin.style.fontFamily =
         "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace";
-    $hex.style.display = $bin.style.display = 'none';
-    $sv.style.display = $version.style.display = $link.style.display = 'none';
+    $version.style.display = $link.style.display = 'none';
   }
   const run = async (dir) => {
     setReady(false);
@@ -89,8 +88,8 @@ addEventListener('load', () => {
       ascii += String.fromCharCode(parseInt(hex.slice(idx, idx + 2), 16));
     return ascii;
   };
-  window.p = () => run('p');
   window.x = () => run('x');
+  window.p = () => run('p');
   window.g = () => run('g');
   window.s = () => run('s');
   window.v = () => run('v');

@@ -20,11 +20,10 @@
     <input type="checkbox" id="decrypt" onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked" />
     <label for="decrypt">Decrypt</label>
     <span id="options">
-      <select id="cipher" onchange="__x__.cipher = +this.value"></select>
-      <select id="hash" onchange="__x__.hash = +this.value"></select>
-      <select id="kdf" onchange="__x__.kdf = +this.value; $sec.style.display = __x__.kdf === 1 ? 'none' : ''"></select>
-      <!-- <input type="number" id="sec" onchange="__x__.sec = +this.value" /> -->
-      <select id="sec" onchange="__x__.sec = +this.value"></select>
+      <select id="cipher" onchange="__x__.cipher = +this.value" style="font-family: monospace"></select>
+      <select id="hash" onchange="__x__.hash = +this.value" style="font-family: monospace"></select>
+      <select id="kdf" onchange="__x__.kdf = +this.value; $sec.style.display = __x__.kdf === 1 ? 'none' : ''" style="font-family: monospace"></select>
+      <select id="sec" onchange="__x__.sec = +this.value" style="font-family: monospace"></select>
     </span>
   </div>
   <div>
