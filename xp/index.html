@@ -8,13 +8,19 @@
   <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 </head>
 <body style="font-family: sans-serif; user-select: none">
-  <div id="flex">
+  <div id="xp">
     <input id="priv" placeholder="private" />
     <button id="x" onclick="x()" disabled>x</button>
     <input id="pub" placeholder="public" />
     <button id="p" onclick="p()" disabled>p</button>
-    <input id="hex" placeholder="shared (hex)" readonly />
-    <input id="bin" placeholder="shared (bin)" readonly />
+    <input id="hex" placeholder="hex" />
+    <input id="bin" placeholder="bin" />
+  </div>
+  <div id="sv">
+    <button id="g" onclick="g()" disabled>g</button>
+    <input id="msg" placeholder="message" />
+    <button id="s" onclick="s()" disabled>s</button>
+    <button id="v" onclick="v()" disabled>v</button>
   </div>
   <div>
     <small>
@@ -30,22 +36,27 @@
 <script src="../version.js"></script>
 <script>
 addEventListener('load', () => {
-  const $flex = document.querySelector('#flex');
+  const $xp = document.querySelector('#xp');
   const $priv = document.querySelector('#priv');
   const $x = document.querySelector('#x');
   const $pub = document.querySelector('#pub');
   const $p = document.querySelector('#p');
   const $hex = document.querySelector('#hex');
   const $bin = document.querySelector('#bin');
+  const $sv = document.querySelector('#sv');
+  const $g = document.querySelector('#g');
+  const $msg = document.querySelector('#msg');
+  const $s = document.querySelector('#s');
+  const $v = document.querySelector('#v');
   const $version = document.querySelector('#version');
   const $link = document.querySelector('#link');
   if (self !== top) {
     document.body.style.margin = '0';
-    $flex.style.display = 'flex';
-    $flex.style.flexDirection = 'column-reverse';
-    $flex.style.gap = '4px';
+    $xp.style.display = 'flex';
+    $xp.style.flexDirection = 'column-reverse';
+    $xp.style.gap = '4px';
     $priv.readOnly = true;
-    $priv.type = $hex.type = $bin.type = 'password';
+    $priv.type = $hex.type = 'password';
     $x.textContent = 'Share';
     $p.textContent = 'Generate';
     $priv.style.fontFamily =
@@ -53,15 +64,20 @@ addEventListener('load', () => {
       $pub.style.fontFamily =
       $p.style.fontFamily =
       $hex.style.fontFamily =
-      $bin.style.fontFamily =
         "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace";
     $hex.style.display = $bin.style.display = 'none';
-    $version.style.display = $link.style.display = 'none';
+    $sv.style.display = $version.style.display = $link.style.display = 'none';
   }
   const run = async (dir) => {
     setReady(false);
     await sleep();
     go.argv = ['xp', dir, $priv.value, ...($pub.value ? [$pub.value] : [])];
+    if (dir === 's') {
+      go.argv = ['xp', dir, $msg.value, $priv.value];
+    }
+    if (dir === 'v') {
+      go.argv = ['xp', dir, $msg.value, $pub.value, $hex.value];
+    }
     await go.run(inst);
     inst = await WebAssembly.instantiate(mod, go.importObject);
     setReady(true);
@@ -75,6 +91,9 @@ addEventListener('load', () => {
   };
   window.p = () => run('p');
   window.x = () => run('x');
+  window.g = () => run('g');
+  window.s = () => run('s');
+  window.v = () => run('v');
   const REGEX = /^(?:(priv|pub)\s+)?([a-f\d]+)$/i;
   const copy = async (text) => {
     try {
