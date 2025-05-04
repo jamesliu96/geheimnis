@@ -9,7 +9,7 @@
 </head>
 <body style="font-family: sans-serif; user-select: none">
   <div>
-    <input type="checkbox" id="archive" onchange="__x__.archive = this.checked; $sign.readOnly = this.checked || !$decrypt.checked" />
+    <input type="checkbox" id="archive" onchange="__x__.archive = this.checked; $auth.readOnly = this.checked || !$decrypt.checked" />
     <label for="archive">Archive</label>
   </div>
   <div>
@@ -17,7 +17,7 @@
     <span id="fileinfo"></span>
   </div>
   <div>
-    <input type="checkbox" id="decrypt" onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $sign.readOnly = !this.checked || $archive.checked" />
+    <input type="checkbox" id="decrypt" onchange="__x__.decrypt = this.checked; for (const $option of [...$options.children]) $option.disabled = this.checked; $auth.readOnly = !this.checked || $archive.checked" />
     <label for="decrypt">Decrypt</label>
     <span id="options">
       <select id="cipher" onchange="__x__.cipher = +this.value" style="font-family: monospace"></select>
@@ -30,7 +30,7 @@
     <input type="password" id="key" onchange="__x__.key = this.value" placeholder="key" onfocus="this.type = 'text'" onblur="this.type = 'password'" style="font-family: monospace" />
   </div>
   <div>
-    <input id="sign" onchange="__x__.sign = this.value" placeholder="signature hex" readonly style="font-family: monospace" />
+    <input id="auth" onchange="__x__.auth = this.value" placeholder="authentication hex" readonly style="font-family: monospace" />
   </div>
   <div>
     <button onclick="run()" id="run" disabled>Run</button>
@@ -71,7 +71,7 @@ addEventListener('load', () => {
   window.$kdf = document.querySelector('#kdf');
   window.$sec = document.querySelector('#sec');
   window.$key = document.querySelector('#key');
-  window.$sign = document.querySelector('#sign');
+  window.$auth = document.querySelector('#auth');
   window.$run = document.querySelector('#run');
   window.$download = document.querySelector('#download');
   window.$downloadinfo = document.querySelector('#downloadinfo');
@@ -97,7 +97,7 @@ addEventListener('load', () => {
       ? REGEX.test(__x__.inputFile.name)
         ? __x__.inputFile.name.replace(REGEX, '')
         : `${__x__.inputFile.name}.bin`
-      : `${__x__.inputFile.name}${__x__.archive ? '' : `.${__x__.sign}`}.gh${__x__.archive ? 'z' : 'm'}`;
+      : `${__x__.inputFile.name}${__x__.archive ? '' : `.${__x__.auth}`}.gh${__x__.archive ? 'z' : 'm'}`;
     a.click();
     URL.revokeObjectURL(blob);
   };
@@ -131,12 +131,12 @@ addEventListener('load', () => {
         ? REGEX.test(__x__.inputFile.name)
           ? __x__.inputFile.name.replace(REGEX, '')
           : `${__x__.inputFile.name}.bin`
-        : `${__x__.inputFile.name}${__x__.archive ? '' : `.${__x__.sign}`}.gh${__x__.archive ? 'z' : 'm'}`
+        : `${__x__.inputFile.name}${__x__.archive ? '' : `.${__x__.auth}`}.gh${__x__.archive ? 'z' : 'm'}`
       } (${formatSize(o.length)})`
       : '';
     if (o) {
-      $sign.value = __x__.sign;
-      $sign.dispatchEvent(new Event('change'));
+      $auth.value = __x__.auth;
+      $auth.dispatchEvent(new Event('change'));
     }
   };
   $file.addEventListener('change', async function () {
@@ -149,8 +149,8 @@ addEventListener('load', () => {
           $decrypt.checked = true;
           $decrypt.dispatchEvent(new Event('change'));
           if (m[1]) {
-            $sign.value = m[1];
-            $sign.dispatchEvent(new Event('change'));
+            $auth.value = m[1];
+            $auth.dispatchEvent(new Event('change'));
           }
           $archive.checked = m[2].toLowerCase() === 'z';
           $archive.dispatchEvent(new Event('change'));

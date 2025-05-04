@@ -59,26 +59,26 @@ func main() {
 	outputBuffer := bytes.NewBuffer(nil)
 	printFunc := geheim.NewDefaultPrintFunc(os.Stderr)
 	var err error
-	var sign []byte
+	var auth []byte
 	if x.Get("archive").Truthy() {
 		if x.Get("decrypt").Truthy() {
-			sign, _, err = geheim.DecryptArchive(inputBuffer, outputBuffer, keyBytes, printFunc)
+			auth, _, err = geheim.DecryptArchive(inputBuffer, outputBuffer, keyBytes, printFunc)
 		} else {
-			sign, err = geheim.EncryptArchive(inputBuffer, outputBuffer, keyBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.Hash(x.Get("hash").Int()), geheim.KDF(x.Get("kdf").Int()), x.Get("sec").Int(), printFunc)
+			auth, err = geheim.EncryptArchive(inputBuffer, outputBuffer, keyBytes, size, geheim.Cipher(x.Get("cipher").Int()), geheim.Hash(x.Get("hash").Int()), geheim.KDF(x.Get("kdf").Int()), x.Get("sec").Int(), printFunc)
 		}
 	} else {
 		if x.Get("decrypt").Truthy() {
-			var signexBytes []byte
-			if signex := x.Get("sign"); signex.Truthy() {
-				signexBytes, err = hex.DecodeString(signex.String())
+			var authexBytes []byte
+			if authex := x.Get("auth"); authex.Truthy() {
+				authexBytes, err = hex.DecodeString(authex.String())
 				check(err)
 			}
-			sign, err = geheim.DecryptVerify(inputBuffer, outputBuffer, keyBytes, signexBytes, printFunc)
+			auth, err = geheim.DecryptVerify(inputBuffer, outputBuffer, keyBytes, authexBytes, printFunc)
 		} else {
-			sign, err = geheim.Encrypt(inputBuffer, outputBuffer, keyBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.Hash(x.Get("hash").Int()), geheim.KDF(x.Get("kdf").Int()), x.Get("sec").Int(), printFunc)
+			auth, err = geheim.Encrypt(inputBuffer, outputBuffer, keyBytes, geheim.Cipher(x.Get("cipher").Int()), geheim.Hash(x.Get("hash").Int()), geheim.KDF(x.Get("kdf").Int()), x.Get("sec").Int(), printFunc)
 		}
 	}
-	x.Set("sign", hex.EncodeToString(sign))
+	x.Set("auth", hex.EncodeToString(auth))
 	check(err)
 	output := uint8Array.New(outputBuffer.Len())
 	js.CopyBytesToJS(output, outputBuffer.Bytes())
