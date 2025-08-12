@@ -1,1 +1,1 @@
-globalThis.__version__ = 'v1.34.0';
+globalThis.__version__ = 'v1.34.1';

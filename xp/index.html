@@ -14,12 +14,12 @@
   <div id="flex">
     <input id="priv" placeholder="private" style="font-family: monospace" />
     <button id="x" onclick="x()" disabled>x</button>
-    <button id="xx" onclick="xx()" disabled>xx</button>
-    <button id="XX" onclick="XX()" disabled>XX</button>
+    <button id="q" onclick="q()" disabled>q</button>
+    <button id="Q" onclick="Q()" disabled>Q</button>
     <input id="pub" placeholder="public" style="font-family: monospace" />
     <button id="p" onclick="p()" disabled>p</button>
-    <button id="pp" onclick="pp()" disabled>pp</button>
-    <button id="PP" onclick="PP()" disabled>PP</button>
+    <button id="c" onclick="c()" disabled>c</button>
+    <button id="C" onclick="C()" disabled>C</button>
     <button id="g" onclick="g()" disabled>g</button>
     <input id="msg" placeholder="message" style="font-family: monospace" />
     <input id="ct" placeholder="ciphertext" style="font-family: monospace" />
@@ -45,12 +45,12 @@
       const $flex = document.querySelector('#flex');
       const $priv = document.querySelector('#priv');
       const $x = document.querySelector('#x');
-      const $xx = document.querySelector('#xx');
-      const $XX = document.querySelector('#XX');
+      const $q = document.querySelector('#q');
+      const $Q = document.querySelector('#Q');
       const $pub = document.querySelector('#pub');
       const $p = document.querySelector('#p');
-      const $pp = document.querySelector('#pp');
-      const $PP = document.querySelector('#PP');
+      const $c = document.querySelector('#c');
+      const $C = document.querySelector('#C');
       const $g = document.querySelector('#g');
       const $msg = document.querySelector('#msg');
       const $ct = document.querySelector('#ct');
@@ -68,11 +68,11 @@
         $priv.readOnly = true;
         $priv.type = 'password';
         $x.textContent = 'Share';
-        $xx.textContent = 'Encapsulate';
-        $XX.textContent = 'Decapsulate';
+        $q.textContent = 'Encapsulate';
+        $Q.textContent = 'Decapsulate';
         $p.textContent = 'Generate ECDH';
-        $pp.textContent = 'Generate MLKEM';
-        $PP.textContent = 'Public MLKEM';
+        $c.textContent = 'Generate MLKEM';
+        $C.textContent = 'Public MLKEM';
         $g.textContent = 'Generate ECDSA';
         $s.textContent = 'Sign';
         $v.textContent = 'Verify';
@@ -94,10 +94,10 @@
         if (dir === 'v') {
           go.argv = ['xp', dir, $msg.value, $pub.value, $hex.value];
         }
-        if (dir === 'xx') {
+        if (dir === 'c') {
           go.argv = ['xp', dir, $pub.value];
         }
-        if (dir === 'XX') {
+        if (dir === 'C') {
           go.argv = ['xp', dir, $priv.value, $ct.value];
         }
         await go.run(inst);
@@ -113,10 +113,10 @@
       };
       globalThis.x = () => run('x');
       globalThis.p = () => run('p');
-      globalThis.pp = () => run('pp');
-      globalThis.PP = () => run('PP');
-      globalThis.xx = () => run('xx');
-      globalThis.XX = () => run('XX');
+      globalThis.q = () => run('q');
+      globalThis.Q = () => run('Q');
+      globalThis.c = () => run('c');
+      globalThis.C = () => run('C');
       globalThis.g = () => run('g');
       globalThis.s = () => run('s');
       globalThis.v = () => run('v');
@@ -184,7 +184,7 @@
           setTimeout(r, t);
         });
       const setReady = (x) => {
-        $x.disabled = $xx.disabled = $XX.disabled = $p.disabled = $pp.disabled = $PP.disabled = $g.disabled = $s.disabled = $v.disabled = !x;
+        $x.disabled = $q.disabled = $Q.disabled = $p.disabled = $c.disabled = $C.disabled = $g.disabled = $s.disabled = $v.disabled = !x;
       };
       const go = new Go();
       let mod, inst;
