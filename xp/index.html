@@ -1,20 +1,28 @@
 <!DOCTYPE html>
 <html style="color-scheme: light dark">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
   <title>xp</title>
   <link rel="icon" type="image/png" href="../favicon.png" />
   <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 </head>
+
 <body style="font-family: sans-serif; user-select: none">
   <div id="flex">
     <input id="priv" placeholder="private" style="font-family: monospace" />
     <button id="x" onclick="x()" disabled>x</button>
+    <button id="xx" onclick="xx()" disabled>xx</button>
+    <button id="XX" onclick="XX()" disabled>XX</button>
     <input id="pub" placeholder="public" style="font-family: monospace" />
     <button id="p" onclick="p()" disabled>p</button>
+    <button id="pp" onclick="pp()" disabled>pp</button>
+    <button id="PP" onclick="PP()" disabled>PP</button>
     <button id="g" onclick="g()" disabled>g</button>
     <input id="msg" placeholder="message" style="font-family: monospace" />
+    <input id="ct" placeholder="ciphertext" style="font-family: monospace" />
     <button id="s" onclick="s()" disabled>s</button>
     <button id="v" onclick="v()" disabled>v</button>
     <input id="hex" placeholder="hex" style="font-family: monospace" />
@@ -30,147 +38,170 @@
       <a id="link" href="../">geheim</a>
     </small>
   </div>
-<script src="../wasm_exec.js"></script>
-<script src="../version.js"></script>
-<script>
-addEventListener('load', () => {
-  const $flex = document.querySelector('#flex');
-  const $priv = document.querySelector('#priv');
-  const $x = document.querySelector('#x');
-  const $pub = document.querySelector('#pub');
-  const $p = document.querySelector('#p');
-  const $g = document.querySelector('#g');
-  const $msg = document.querySelector('#msg');
-  const $s = document.querySelector('#s');
-  const $v = document.querySelector('#v');
-  const $hex = document.querySelector('#hex');
-  const $bin = document.querySelector('#bin');
-  const $version = document.querySelector('#version');
-  const $link = document.querySelector('#link');
-  if (self !== top) {
-    document.body.style.margin = '0';
-    $flex.style.display = 'flex';
-    $flex.style.flexDirection = 'column-reverse';
-    $flex.style.gap = '4px';
-    $priv.readOnly = true;
-    $priv.type = 'password';
-    $x.textContent = 'Share';
-    $p.textContent = 'Generate DH';
-    $g.textContent = 'Generate DSA';
-    $s.textContent = 'Sign';
-    $v.textContent = 'Verify';
-    $priv.style.fontFamily =
-      $pub.style.fontFamily =
-      $msg.style.fontFamily =
-      $hex.style.fontFamily =
-      $bin.style.fontFamily =
-        "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace";
-    $version.style.display = $link.style.display = 'none';
-  }
-  const run = async (dir) => {
-    setReady(false);
-    await sleep();
-    go.argv = ['xp', dir, $priv.value, ...($pub.value ? [$pub.value] : [])];
-    if (dir === 's') {
-      go.argv = ['xp', dir, $msg.value, $priv.value];
-    }
-    if (dir === 'v') {
-      go.argv = ['xp', dir, $msg.value, $pub.value, $hex.value];
-    }
-    await go.run(inst);
-    inst = await WebAssembly.instantiate(mod, go.importObject);
-    setReady(true);
-  };
-  const hex_to_ascii = (hex) => {
-    if (!hex.length || hex.length % 2) return '';
-    let ascii = '';
-    for (let idx = 0; idx < hex.length; idx += 2)
-      ascii += String.fromCharCode(parseInt(hex.slice(idx, idx + 2), 16));
-    return ascii;
-  };
-  window.x = () => run('x');
-  window.p = () => run('p');
-  window.g = () => run('g');
-  window.s = () => run('s');
-  window.v = () => run('v');
-  const REGEX = /^(?:(priv|pub)\s+)?([a-f\d]+)$/i;
-  const copy = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {}
-  };
-  const paste = async () => {
-    try {
-      return await navigator.clipboard.readText();
-    } catch {}
-  };
-  $pub.addEventListener('focus', async () => {
-    const text = await paste();
-    if (text) {
-      const m = REGEX.exec(text.trim());
-      if (m) $pub.value = m[2];
-    }
-  });
-  const { log } = console;
-  console.log = (...args) => {
-    log(...args);
-    const argstr = args.join(' ');
-    if (['panic:', 'error:'].some((v) => argstr.includes(v))) {
-      alert(argstr);
-      return;
-    }
-    const lines = argstr.split('\n');
-    for (const line of lines) {
-      const m = REGEX.exec(line.trim());
-      if (m) {
-        switch (m[1]) {
-          case 'priv': {
-            $priv.value = m[2];
-            $hex.value = $bin.value = '';
-            break;
-          }
-          case 'pub': {
-            const pub = m[2];
-            $pub.value = pub;
-            $hex.value = $bin.value = '';
-            copy(pub);
-            break;
-          }
-          default: {
-            const hex = m[2];
-            const bin = hex_to_ascii(hex);
-            $hex.value = hex;
-            $bin.value = bin;
-            parent.postMessage({ hex, bin }, '*');
+  <script src="../wasm_exec.js"></script>
+  <script src="../version.js"></script>
+  <script>
+    addEventListener('load', () => {
+      const $flex = document.querySelector('#flex');
+      const $priv = document.querySelector('#priv');
+      const $x = document.querySelector('#x');
+      const $xx = document.querySelector('#xx');
+      const $XX = document.querySelector('#XX');
+      const $pub = document.querySelector('#pub');
+      const $p = document.querySelector('#p');
+      const $pp = document.querySelector('#pp');
+      const $PP = document.querySelector('#PP');
+      const $g = document.querySelector('#g');
+      const $msg = document.querySelector('#msg');
+      const $ct = document.querySelector('#ct');
+      const $s = document.querySelector('#s');
+      const $v = document.querySelector('#v');
+      const $hex = document.querySelector('#hex');
+      const $bin = document.querySelector('#bin');
+      const $version = document.querySelector('#version');
+      const $link = document.querySelector('#link');
+      if (self !== top) {
+        document.body.style.margin = '0';
+        $flex.style.display = 'flex';
+        $flex.style.flexDirection = 'column-reverse';
+        $flex.style.gap = '4px';
+        $priv.readOnly = true;
+        $priv.type = 'password';
+        $x.textContent = 'Share';
+        $xx.textContent = 'Encapsulate';
+        $XX.textContent = 'Decapsulate';
+        $p.textContent = 'Generate ECDH';
+        $pp.textContent = 'Generate MLKEM';
+        $PP.textContent = 'Public MLKEM';
+        $g.textContent = 'Generate ECDSA';
+        $s.textContent = 'Sign';
+        $v.textContent = 'Verify';
+        $priv.style.fontFamily =
+          $pub.style.fontFamily =
+          $msg.style.fontFamily =
+          $hex.style.fontFamily =
+          $bin.style.fontFamily =
+          "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace";
+        $version.style.display = $link.style.display = 'none';
+      }
+      const run = async (dir) => {
+        setReady(false);
+        await sleep();
+        go.argv = ['xp', dir, $priv.value, ...($pub.value ? [$pub.value] : [])];
+        if (dir === 's') {
+          go.argv = ['xp', dir, $msg.value, $priv.value];
+        }
+        if (dir === 'v') {
+          go.argv = ['xp', dir, $msg.value, $pub.value, $hex.value];
+        }
+        if (dir === 'xx') {
+          go.argv = ['xp', dir, $pub.value];
+        }
+        if (dir === 'XX') {
+          go.argv = ['xp', dir, $priv.value, $ct.value];
+        }
+        await go.run(inst);
+        inst = await WebAssembly.instantiate(mod, go.importObject);
+        setReady(true);
+      };
+      const hex_to_ascii = (hex) => {
+        if (!hex.length || hex.length % 2) return '';
+        let ascii = '';
+        for (let idx = 0; idx < hex.length; idx += 2)
+          ascii += String.fromCharCode(parseInt(hex.slice(idx, idx + 2), 16));
+        return ascii;
+      };
+      globalThis.x = () => run('x');
+      globalThis.p = () => run('p');
+      globalThis.pp = () => run('pp');
+      globalThis.PP = () => run('PP');
+      globalThis.xx = () => run('xx');
+      globalThis.XX = () => run('XX');
+      globalThis.g = () => run('g');
+      globalThis.s = () => run('s');
+      globalThis.v = () => run('v');
+      const REGEX = /^(?:(priv|pub|sk|ct)\s+)?([a-f\d]+)$/i;
+      const copy = async (text) => {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch { }
+      };
+      const paste = async () => {
+        try {
+          return await navigator.clipboard.readText();
+        } catch { }
+      };
+      $pub.addEventListener('focus', async () => {
+        const text = await paste();
+        if (text) {
+          const m = REGEX.exec(text.trim());
+          if (m) $pub.value = m[2];
+        }
+      });
+      const { log } = console;
+      console.log = (...args) => {
+        log(...args);
+        const argstr = args.join(' ');
+        if (['panic:', 'error:'].some((v) => argstr.includes(v))) {
+          alert(argstr);
+          return;
+        }
+        for (const line of argstr.split('\n')) {
+          const m = REGEX.exec(line.trim());
+          if (m) {
+            switch (m[1]) {
+              case 'priv': {
+                $priv.value = m[2];
+                $hex.value = $bin.value = '';
+                break;
+              }
+              case 'pub': {
+                const pub = m[2];
+                $pub.value = pub;
+                $hex.value = $bin.value = '';
+                copy(pub);
+                break;
+              }
+              case 'ct': {
+                $ct.value = m[2];
+                break;
+              }
+              default: {
+                const hex = m[2];
+                const bin = hex_to_ascii(hex);
+                $hex.value = hex;
+                $bin.value = bin;
+                parent.postMessage({ hex, bin }, '*');
+              }
+            }
           }
         }
-      }
-    }
-  };
-  log('geheim', __version__);
-  $version.textContent = __version__;
-  const sleep = (t = 0) =>
-    new Promise((r) => {
-      setTimeout(r, t);
+      };
+      log('geheim', __version__);
+      $version.textContent = __version__;
+      const sleep = (t = 0) =>
+        new Promise((r) => {
+          setTimeout(r, t);
+        });
+      const setReady = (x) => {
+        $x.disabled = $xx.disabled = $XX.disabled = $p.disabled = $pp.disabled = $PP.disabled = $g.disabled = $s.disabled = $v.disabled = !x;
+      };
+      const go = new Go();
+      let mod, inst;
+      WebAssembly.instantiateStreaming(
+        fetch('xp.wasm'),
+        go.importObject
+      )
+        .then((result) => {
+          mod = result.module;
+          inst = result.instance;
+          setReady(true);
+        })
+        .catch((err) => {
+          console.log('error:', err);
+        });
     });
-  const setReady = (x) => {
-    $x.disabled = $p.disabled = $g.disabled = $s.disabled = $v.disabled = !x;
-  };
-  const go = new Go();
-  let mod, inst;
-  WebAssembly.instantiateStreaming(
-    fetch('xp.wasm'),
-    go.importObject
-  )
-    .then((result) => {
-      mod = result.module;
-      inst = result.instance;
-      setReady(true);
-    })
-    .catch((err) => {
-      console.log('error:', err);
-    });
-});
-</script>
+  </script>
 </body>
+
 </html>
