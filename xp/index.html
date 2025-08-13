@@ -15,11 +15,11 @@
     <input id="priv" placeholder="private" style="font-family: monospace" />
     <button id="x" onclick="x()" disabled>x</button>
     <button id="q" onclick="q()" disabled>q</button>
-    <button id="Q" onclick="Q()" disabled>Q</button>
+    <button id="Q" onclick="z()" disabled>z</button>
     <input id="pub" placeholder="public" style="font-family: monospace" />
     <button id="p" onclick="p()" disabled>p</button>
-    <button id="c" onclick="c()" disabled>c</button>
-    <button id="C" onclick="C()" disabled>C</button>
+    <button id="c" onclick="e()" disabled>e</button>
+    <button id="C" onclick="d()" disabled>d</button>
     <button id="g" onclick="g()" disabled>g</button>
     <input id="msg" placeholder="message" style="font-family: monospace" />
     <input id="ct" placeholder="ciphertext" style="font-family: monospace" />
@@ -46,11 +46,11 @@
       const $priv = document.querySelector('#priv');
       const $x = document.querySelector('#x');
       const $q = document.querySelector('#q');
-      const $Q = document.querySelector('#Q');
+      const $z = document.querySelector('#z');
       const $pub = document.querySelector('#pub');
       const $p = document.querySelector('#p');
-      const $c = document.querySelector('#c');
-      const $C = document.querySelector('#C');
+      const $e = document.querySelector('#e');
+      const $d = document.querySelector('#d');
       const $g = document.querySelector('#g');
       const $msg = document.querySelector('#msg');
       const $ct = document.querySelector('#ct');
@@ -69,10 +69,10 @@
         $priv.type = 'password';
         $x.textContent = 'Share';
         $q.textContent = 'Encapsulate';
-        $Q.textContent = 'Decapsulate';
+        $z.textContent = 'Decapsulate';
         $p.textContent = 'Generate ECDH';
-        $c.textContent = 'Generate MLKEM';
-        $C.textContent = 'Public MLKEM';
+        $e.textContent = 'Generate MLKEM';
+        $d.textContent = 'Public MLKEM';
         $g.textContent = 'Generate ECDSA';
         $s.textContent = 'Sign';
         $v.textContent = 'Verify';
@@ -184,7 +184,7 @@
           setTimeout(r, t);
         });
       const setReady = (x) => {
-        $x.disabled = $q.disabled = $Q.disabled = $p.disabled = $c.disabled = $C.disabled = $g.disabled = $s.disabled = $v.disabled = !x;
+        $x.disabled = $q.disabled = $z.disabled = $p.disabled = $e.disabled = $d.disabled = $g.disabled = $s.disabled = $v.disabled = !x;
       };
       const go = new Go();
       let mod, inst;
