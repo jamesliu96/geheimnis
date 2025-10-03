@@ -114,7 +114,7 @@
         log(...args);
         const argstr = args.join(' ');
         $console.value += `${argstr}\n`;
-        if (['panic:', 'error:'].some((v) => argstr.includes(v))) alert(argstr);
+        if (argstr.includes('error: ')) alert(argstr);
       };
       console.log('geheim', __version__);
       document.querySelector('#version').textContent = __version__;

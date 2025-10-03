@@ -142,10 +142,7 @@
       console.log = (...args) => {
         log(...args);
         const argstr = args.join(' ');
-        if (['panic:', 'error:'].some((v) => argstr.includes(v))) {
-          alert(argstr);
-          return;
-        }
+        if (argstr.includes('error: ')) return alert(argstr);
         for (const line of argstr.split('\n')) {
           const m = REGEX.exec(line.trim());
           if (m) {

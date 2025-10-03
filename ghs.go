@@ -15,12 +15,17 @@ func printf(format string, a ...any) { fmt.Fprintf(os.Stderr, format, a...) }
 
 func check(err error) {
 	if err != nil {
-		printf("error: %s\n", err)
-		os.Exit(1)
+		panic(err)
 	}
 }
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			printf("error: %v\n", r)
+			os.Exit(1)
+		}
+	}()
 	global := js.Global()
 	uint8Array := global.Get("Uint8Array")
 	x := global.Get("__x__")
