@@ -15,11 +15,11 @@
     <input id="priv" placeholder="private" style="font-family: monospace" />
     <button id="x" onclick="x()" disabled>x</button>
     <button id="q" onclick="q()" disabled>q</button>
-    <button id="Q" onclick="z()" disabled>z</button>
+    <button id="z" onclick="z()" disabled>z</button>
     <input id="pub" placeholder="public" style="font-family: monospace" />
     <button id="p" onclick="p()" disabled>p</button>
-    <button id="c" onclick="e()" disabled>e</button>
-    <button id="C" onclick="d()" disabled>d</button>
+    <button id="e" onclick="e()" disabled>e</button>
+    <button id="d" onclick="d()" disabled>d</button>
     <button id="g" onclick="g()" disabled>g</button>
     <input id="msg" placeholder="message" style="font-family: monospace" />
     <input id="ct" placeholder="ciphertext" style="font-family: monospace" />
@@ -94,10 +94,10 @@
         if (dir === 'v') {
           go.argv = ['xp', dir, $msg.value, $pub.value, $hex.value];
         }
-        if (dir === 'c') {
+        if (dir === 'e') {
           go.argv = ['xp', dir, $pub.value];
         }
-        if (dir === 'C') {
+        if (dir === 'd') {
           go.argv = ['xp', dir, $priv.value, $ct.value];
         }
         await go.run(inst);
@@ -112,11 +112,11 @@
         return ascii;
       };
       globalThis.x = () => run('x');
-      globalThis.p = () => run('p');
       globalThis.q = () => run('q');
-      globalThis.Q = () => run('Q');
-      globalThis.c = () => run('c');
-      globalThis.C = () => run('C');
+      globalThis.z = () => run('z');
+      globalThis.p = () => run('p');
+      globalThis.e = () => run('e');
+      globalThis.d = () => run('d');
       globalThis.g = () => run('g');
       globalThis.s = () => run('s');
       globalThis.v = () => run('v');
