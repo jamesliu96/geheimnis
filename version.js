@@ -1,1 +1,1 @@
-Object.defineProperty(globalThis, '__version__', { value: 'v1.34.8' });
+Object.defineProperty(globalThis, '__version__', { value: 'v1.34.9' });
